@@ -1,0 +1,432 @@
+<!DOCTYPE html> <html>
+  <head>
+    <title>Monitor</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/light.min.css">
+  </head>
+
+  <body>
+
+    <div class="headingDiv">
+      <h1 class="mylist">My List</h1> 
+
+      <h2 class="loginId"> Welcome, <span id="userName"></span>!</h2> 
+      <button class="logoutImg" type="button" onclick="logout()">
+        <img src="referenceImages/logout.png">
+      </button> 
+    </div>
+
+    <button onclick="display()" class="addNewTask">
+      + Add
+    </button>
+    
+    <button onclick="displaypending()" class="pendingTask">Pending Task</button>
+    <button onclick="displaycompleted()" class="completedTask">Completed Task</button>
+    <button onclick="displaydropped()" class="droppedTask">Dropped Task</button>
+
+
+    <div id="newTaskSection">
+      <p class="pendingList">Add Task</p>
+      <h4 class="define">Enter your goal</h4>
+      <input id="taskInput" placeholder="e.g. mrng meditation" class="taskInputbox"><br><br>
+
+      <!-- image upload-start -->
+       
+      <div class="container">
+        <input type="file" id="fileUpload" accept="image/*">
+      </div>
+
+      <div class="image-container">
+        <img id="outputimg" src="" alt="">
+      </div>
+
+      <!-- image upload-end -->
+
+      <h4 class="description">Describe your goal</h4>
+
+      <input id="taskDescription" placeholder="e.g. clear up the mind and listen to yourself" class="describeInputbox"><br><br>
+
+      <button onclick="newtask()" class="addButton" id="addButton" disabled>Add</button>
+    </div>
+
+    <div id="pendingTaskSection">
+      <p class="pendingList">Pending List</p> <input id="searchBoxid" class="searchBox" placeholder="Search with task/description" onkeyup="searchTask()">
+      <div class="listingTasks">
+        <div id="output"></div><br>
+        <p id="desoutput"></p>
+      </div>
+    </div>
+
+    <div id="completedTaskSection" class="completedTaskSection">
+      <p class="completeListdesign">Completed List</p> <input id="searchBox2id" class="searchBox" placeholder="Search with task/description" onkeyup="searchCompletedTask()">
+      <div id="completedTaskList" class="completedTask">
+      </div>
+    </div>
+
+    <div id="droppedTaskSection" class="droppedTaskSection">
+      <p class="droppedListdesign">Dropped Task</p> <input id="searchBox3id" class="searchBox" placeholder="Search with task/description" onkeyup="searchDroppedTask()">
+      <div id="droppedTaskList" class="droppedTask">
+      </div>
+    </div>
+
+    <script>
+      
+      window.onpageshow = function(event) {
+        if (event.persisted || window.performance.navigation.type === 2) {
+          window.location.reload();
+        }
+      };
+
+      // Check if user is logged in by checking for the 'username' cookie
+      if (!document.cookie.includes("username=")) {
+        window.location.href = "/"; // Not logged in → redirect to login
+      }
+
+      //Disable add button until something is entered in Add task input box
+      const input = document. getElementById("taskInput")
+      const add = document. getElementById("addButton")
+
+      input.addEventListener("input", function(){
+        if(input.value.trim() !== ""){
+          add.disabled=false;
+        } else {
+          add.disabled=true;
+        }
+      });
+
+      
+      function display() {
+        document.getElementById("newTaskSection").style.display = "block";
+        document.getElementById("pendingTaskSection").style.display = "none";
+        document.getElementById("completedTaskSection").style.display = "none";
+        document.getElementById("droppedTaskSection").style.display = "none";
+        
+      }
+
+      function displaypending() {
+        document.getElementById("pendingTaskSection").style.display = "block";
+        document.getElementById("newTaskSection").style.display = "none";
+        document.getElementById("completedTaskSection").style.display = "none";
+        document.getElementById("droppedTaskSection").style.display = "none";
+      }
+
+      function displaycompleted() {
+        document.getElementById("newTaskSection").style.display = "none";
+        document.getElementById("pendingTaskSection").style.display = "none";
+        document.getElementById("completedTaskSection").style.display = "block";
+        document.getElementById("droppedTaskSection").style.display = "none";
+      }
+
+      function displaydropped() {
+        document.getElementById("newTaskSection").style.display = "none";
+        document.getElementById("pendingTaskSection").style.display = "none";
+        document.getElementById("completedTaskSection").style.display = "none";
+        document.getElementById("droppedTaskSection").style.display = "block";
+      }
+
+      function newtask() {
+        var input = document.getElementById("taskInput").value;
+        var description = document.getElementById("taskDescription").value;
+        const fileInput = document.getElementById("fileUpload");
+
+        const formData = new FormData();
+        formData.append("newTask", input);
+        formData.append("description", description);
+
+        if (fileInput.files.length > 0) {
+          formData.append("image", fileInput.files[0]);
+        }
+
+        fetch('/add-task', {
+          method: 'POST',
+          body: formData // No headers needed for FormData
+        })
+
+        .then(response => response.json())
+        .then(data => {
+          console.log(data.message);
+
+          var division=document.createElement("div");
+          division.className="listingBoth";
+          
+          division.setAttribute("data-id", data.taskId);
+
+          let isPremium = getCookieValue("premium") === "true";
+          let buttons = `<button id="markAsComplete" onclick="completedTask(this)">Mark as Complete</button>`;
+          if (isPremium) {
+            buttons += `<button id="dropButton" onclick="droppedTask(this)">Drop</button>`;
+          }
+          buttons += `<button id="deleteButton" onclick="deleteTask(this)">
+                        <img src="referenceImages/delete.png" id="deleteButtonImg">
+                      </button>`;
+
+          const imageHTML = data.imagePath ? `<div id="uploadImgDiv"> <img src="${data.imagePath}" onclick="openView('${data.imagePath}')" id="openImage" class="uploadedImage"> </div>` : "";
+
+          division.innerHTML = `
+            <p class="inputask">${input}</p> <br> 
+            <p class="inpudesc">${description}</p>
+            ${imageHTML}
+            ${getCookieValue("premium") === "true" ? `
+              <button id="markAsComplete" onclick="completedTask(this)">Mark as Complete</button>
+              <button id="dropButton" onclick="droppedTask(this)">Drop</button>` : `
+              <button id="markAsComplete" onclick="completedTask(this)">Mark as Complete</button>
+              <button id="dropButton" disabled style="opacity: 0.5; cursor: not-allowed;" title="Premium only">Drop</button>`}
+            <button id="deleteButton" onclick="deleteTask(this)">
+              <img src="referenceImages/delete.png" id="deleteButtonImg">
+            </button>
+          `;
+
+          document.getElementById("output").appendChild(division);
+
+          document.getElementById("taskInput").value="";
+          document.getElementById("taskDescription").value="";
+          document.getElementById("fileUpload").value = "";
+
+          add.disabled = true;
+
+          alert("Task created successfully!");
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert("Failed to save task");
+        });
+      }
+
+      function deleteTask(btn) {
+        const taskDiv = btn.closest("div[data-id]");
+        const taskId = taskDiv.getAttribute("data-id");
+
+        fetch(`/delete-task/${taskId}`, {
+          method: "DELETE"
+        })
+        .then(response => {
+            if (response.ok) {
+              taskDiv.remove();
+            }else {
+              alert("Failed to delete task from DB");
+            }
+          })
+        .catch(error => {
+          console.error("Delete error:", error);
+        });
+      }
+
+      function completedTask(btn) {
+        var taskDiv = btn.closest("div[data-id]");
+        var taskId = taskDiv.getAttribute("data-id");
+
+        fetch(`/mark-complete/${taskId}`, {
+          method: "PUT"
+        })
+        .then(response => {
+          if(response.ok) {
+            btn.remove();
+            const dropButton = taskDiv.querySelector("#dropButton");
+            if (dropButton) {
+              dropButton.remove();
+            }
+            document.getElementById("completedTaskList").prepend(taskDiv);
+          }else {
+            alert("Failed to mark as complete");
+          }
+        })
+        .catch(error => {
+          console.error("Error marking complete:", error);
+        });
+      }
+
+      function droppedTask(btn) {
+        var taskDiv = btn.closest("div[data-id]");
+        var taskId = taskDiv.getAttribute("data-id");
+
+        fetch(`/mark-dropped/${taskId}`, {
+          method: "PUT"
+        })
+        .then(response => {
+          if(response.ok) {
+            btn.remove();
+            const completeBtn = taskDiv.querySelector("#markAsComplete");
+            if (completeBtn) completeBtn.remove();
+
+            const undropBtn = document.createElement("button");
+            undropBtn.textContent = "Undrop";
+            undropBtn.className = "undropButton";
+            undropBtn.onclick = function () {
+              fetch(`/mark-pending/${taskId}`, { method: "PUT" })
+                .then(response => {
+                  if (response.ok) {
+                    undropBtn.remove();
+                    document.getElementById("output").prepend(taskDiv); // move to pending
+                  } else {
+                    alert("Failed to undrop task");
+                  }
+                })
+                .catch(error => {
+                  console.error("Error undropping:", error);
+                });
+            };
+            taskDiv.prepend(undropBtn);
+            document.getElementById("droppedTaskList").prepend(taskDiv);
+            
+          }else {
+            alert("Failed to drop the task");
+          }
+        })
+        .catch(error => {
+          console.error("Error dropping:", error);
+        });
+      }
+      
+      function getCookieValue(name) {
+          return document.cookie
+            .split('; ') //splits the string into an array
+            .find(row => row.startsWith(name + '=')) //looks for the cookie that starts with name
+            ?.split('=')[1];
+        }
+
+      window.onload = function() {
+        const isPremium = document.cookie.includes("premium=true");
+        const dropBtn = document.createElement("button");
+        dropBtn.innerText = "Drop";
+        dropBtn.classList.add("drop-btn");
+
+          if (!isPremium) {
+            dropBtn.disabled = true;
+            dropBtn.title = "Premium only";
+            dropBtn.style.cursor = "not-allowed";
+          } else {
+
+          }
+
+          const username = getCookieValue("username");
+          document.getElementById("userName").textContent = username.includes('@') ? username.split('@')[0] : username;
+
+        fetch('/get-tasks')
+          .then(response => response.json())
+          .then(data => {
+            data.forEach(task => {
+
+              const division = document.createElement("div");
+              division.className="listingBoth";
+              division.setAttribute("data-id", task._id);
+
+              let buttonsHTML = "";
+              if (task.status === "pending") {
+                buttonsHTML += `<button id="markAsComplete" onclick="completedTask(this)">Mark as Complete</button>`;
+                
+                buttonsHTML += `<button id="dropButton" onclick="droppedTask(this)" ${isPremium ? '' : 'disabled style="opacity: 0.5; cursor: not-allowed;"'}>Drop</button>`;
+              }
+
+              const imageHTML = task.imagePath ? `<div id="uploadImgDiv"> <img src="${task.imagePath}" onclick="openView('${task.imagePath}')" id="openImage" class="uploadedImage"> </div>` : "";
+
+              division.innerHTML = `
+                <p class="inputask">${task.newTask}</p> <br> 
+                <p class="inpudesc">${task.description}</p>
+                ${imageHTML}
+                ${task.status === "pending" ? `
+                  <button id="markAsComplete" onclick="completedTask(this)">Mark as Complete</button>
+                  <button id="dropButton" onclick="droppedTask(this)" ${isPremium ? '' : 'disabled style="opacity: 0.5; cursor: not-allowed;" title="Premium only"'}>Drop</button>
+                ` : ""}
+                <button id="deleteButton" onclick="deleteTask(this)">
+                  <img src="referenceImages/delete.png" id="deleteButtonImg">
+                </button>
+              `;
+          
+              if (task.status == "pending") {
+                document.getElementById("output").appendChild(division);
+              } else if (task.status == "completed") {
+                document.getElementById("completedTaskList").appendChild(division);
+              } else if (task.status == "dropped") {
+                document.getElementById("droppedTaskList").appendChild(division);
+                const undropButton = document.createElement("button");
+                undropButton.textContent = "Undrop";
+                undropButton.className = "undropButton";
+                undropButton.onclick = async function () {
+                  try {
+                    const response = await fetch(`/mark-pending/${task._id}`, {
+                      method: 'PUT'
+                    });
+
+                    if (response.ok) {
+                      alert("Task moved back to Pending");
+                      location.reload();
+                    } else {
+                      alert("Failed to undrop task");
+                    }
+                  } catch (error) {
+                    alert("Error occurred while undropping task");
+                  }
+                };
+
+                // Append to task div
+                division.appendChild(undropButton);
+              }
+            });
+          })
+          .catch(error => {
+            console.error('Error loading tasks:', error);
+          });
+      };
+      
+      function searchTask() {
+        const searchTerm = document.getElementById("searchBoxid").value.toLowerCase();
+        const taskList = document.querySelectorAll(".listingBoth");
+
+        taskList.forEach(task => {
+          const title = task.querySelector(".inputask").textContent.toLowerCase();
+          const description = task.querySelector(".inpudesc").textContent.toLowerCase();
+          
+          if (title.includes(searchTerm) || description.includes(searchTerm)) {
+            task.style.display = "block";
+          } else {
+            task.style.display = "none";
+          }
+        });
+      }
+
+      function searchCompletedTask() {
+        const searchTerm1 = document.getElementById("searchBox2id").value.toLowerCase();
+        const taskList2 = document.querySelectorAll("#completedTaskList .listingBoth");
+
+        taskList2.forEach(task => {
+          const title1 = task.querySelector(".inputask").textContent.toLowerCase();
+          const description2 = task.querySelector(".inpudesc").textContent.toLowerCase();
+
+          if (title1.includes(searchTerm1) || description2.includes(searchTerm1)) {
+            task.style.display = "block";
+          } else {
+            task.style.display = "none";
+          }
+        });
+      }
+
+      function searchDroppedTask() {
+        const searchTerm1 = document.getElementById("searchBox3id").value.toLowerCase();
+        const taskList2 = document.querySelectorAll("#droppedTaskList .listingBoth");
+
+        taskList2.forEach(task => {
+          const title1 = task.querySelector(".inputask").textContent.toLowerCase();
+          const description2 = task.querySelector(".inpudesc").textContent.toLowerCase();
+
+          if (title1.includes(searchTerm1) || description2.includes(searchTerm1)) {
+            task.style.display = "block";
+          } else {
+            task.style.display = "none";
+          }
+        });
+      }
+
+      function logout() {
+        if (confirm("Are you sure logout from current session?")) {
+        document.cookie = "username=; expires=Thu, 01 Jan 2000 00:00:00 UTC; path=/";
+        document.cookie = "premium=; expires=Thu, 01 Jan 2000 00:00:00 UTC; path=/";
+        window.location.href = "/";
+        }
+      }
+
+    </script>
+    
+  </body>
+
+
+</html>

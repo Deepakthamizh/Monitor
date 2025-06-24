@@ -1,0 +1,62 @@
+<!-- <button id ="color" onclick = "changecolor()">Change Color</button>
+
+<script>
+
+  var color = document.getElementById("color");
+
+  function changecolor() {
+    color.style.backgroundColor="red";
+  }
+
+</script> -->
+
+//when a user clicks a button the text from that button is shown in the h1 tag located above it. 
+
+<h1 id="h1">Name</h1>
+
+<button id="john" onclick="changename()">John</button>
+<button id="praveen" onclick="changename1()">Praveen</button>
+<button id="karthi" onclick="changename2()">Karthi</button>
+
+<button onclick="changename(event)">John</button>
+<button onclick="changename1(event)">Praveen</button>
+<button onclick="changename2(event)">Karthi</button>
+
+
+
+<script>
+    var h1=document.getElementById("h1");
+
+    function changename() {
+      h1.textContent="John";
+    }
+
+    function changename1() {
+      h1.textContent="Praveen";
+    }
+
+    function changename2() {
+      h1.textContent="Karthi";
+    }
+
+    function changename3(event) {
+      h1.textContent=event.target.textContent;
+
+    }
+</script>
+
+<h1  onclick="update(event)">One</h1>
+<h1  onclick="update(event)">Two</h1>
+<h1  onclick="update(event)">Three</h1>
+<h1  onclick="update(event)">Four</h1>
+<h1  onclick="update(event)">Five</h1>
+<h1  onclick="update(event)">Six</h1>
+
+<script>
+  var h1=document.getElementById("h1");
+
+  function update(event) {
+    event.target.remove();
+  }
+</script>
+

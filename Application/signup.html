@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monitor-SignUp</title>
+  <style>
+      @font-face {
+      font-family: "Zoho Puvi Light";
+      src: url("fonts/Zoho Puvi Light.ttf");
+    }
+
+    .form {
+      width: 400px;
+    }
+    
+    .loginBox {
+      font-family: "Zoho Puvi Light";
+      position: relative;
+      right: -900px;
+      top: 200px;
+      width: 400px;
+    }
+
+    .emailBox {
+      font-family: "Zoho Puvi Light";
+      height: 30px;
+      width: 300px;
+      border-radius: 5px;
+      padding: 5px;
+      border: solid;
+      border-color: rgb(197, 197, 197);
+    }
+
+    .passwordBox {
+      font-family: "Zoho Puvi Light";
+      height: 30px;
+      width: 300px;
+      border-radius: 5px;
+      padding: 5px;
+      border: solid;
+      border-color: rgb(197, 197, 197);
+    }
+
+    .submitButton {
+      font-family: "Zoho Puvi Light";
+      height: 30px;
+      width: 80px;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .Login {
+      position: relative;
+      top: 20px;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <div class="loginBox" class="loginBox">
+    <h2 class="login">
+      SignUp
+    </h2>
+
+    <form action="/signup" class="form" method="post">
+
+      <input class="emailBox" type="text" name="name" placeholder="Enter your email/name"><br><br>
+      <input class="passwordBox" type="password" name="password" placeholder="Create Password"><br><br>
+      <input class="submitButton" type="submit">
+
+    </form>
+    <a class="Login" href="./login.html">Have an account already! Login</a>
+  </div>
+  
+  
+  
+</body>
+</html>

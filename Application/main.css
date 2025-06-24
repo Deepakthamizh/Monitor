@@ -1,0 +1,417 @@
+@font-face {
+  font-family: "Zoho Puvi Light";
+  src: url("fonts/Zoho Puvi Light.ttf");
+}
+
+.headingDiv {
+  width: 620px;
+  height: 90px;
+}
+
+.loginId {
+  font-family: "Zoho Puvi Light";
+  font-size: 20px;
+  position: relative;
+  top: -62px;
+  right: -380px;
+  width: 250px;
+}
+
+.mylist {
+  font-family: "Zoho Puvi Light";
+}
+
+.addNewTask {
+  font-family: "Zoho Puvi Light";
+  background-color: white;
+  border: solid;
+  border-color: rgb(8 153 73);
+  color: rgb(8 153 73);
+  height: 40px;
+  width: 110px;
+  cursor: pointer;
+}
+
+.addNewTask:hover {
+  background-color: rgb(8 153 73);
+  color: white;
+}
+
+.pendingTask {
+  font-family: "Zoho Puvi Light";
+  height: 40px;
+  width: 200px;
+  cursor: pointer;
+}
+
+.completedTask {
+  font-family: "Zoho Puvi Light";
+  height: 40px;
+  width: 200px;
+  cursor: pointer;
+}
+
+.droppedTask {
+  font-family: "Zoho Puvi Light";
+  height: 40px;
+  width: 200px;
+  cursor: pointer;
+}
+
+#completedTaskList .listingBoth {
+  top: -30px;
+  margin-top: -15px;
+}
+
+#droppedTaskList .listingBoth {
+  top: -30px;
+  margin-top: -15px;
+}
+
+#droppedTaskList .listingBoth #deleteButtonImg {
+  top: -97px;
+  margin-top: -15px;
+}
+
+#droppedTaskList .listingBoth #openImage {
+  top: -77px;
+  right: -250px;
+  margin-top: -15px;
+}
+
+#droppedTaskList .listingBoth .undropButton {
+  top: -117px;
+  right: -220px;
+  margin-top: -15px;
+}
+
+#droppedTaskList .listingBoth #deleteButtonImg {
+  top: -112px;
+  right: -220px;
+  margin-top: -15px;
+}
+
+.define {
+  font-family: "Zoho Puvi Light";
+  position: relative;
+  top: -8px;
+}
+
+.taskInputbox {
+  font-family: "Zoho Puvi Light";
+  height: 30px;
+  width: 400px;
+  position: relative;
+  top: -10px;
+}
+
+.description {
+  font-family: "Zoho Puvi Light";
+  position: relative;
+  top: -110px;
+}
+
+.describeInputbox {
+  font-family: "Zoho Puvi Light";
+  height: 100px;
+  width: 400px;
+  position: relative;
+  top: -110px;
+}
+
+.listingTasks {
+  position: relative;
+  top: -60px;
+  height: 100px;
+}
+
+.listingBoth {
+  height: 60px;
+  width: 600px;
+  font-size: 16px;
+  position: relative;
+  top: 30px;
+}
+
+#deleteButton {
+  border-radius: 100px;
+  background-color: white;
+  position: relative;
+  right: 5px;
+}
+
+#deleteButtonImg {
+  position: relative;
+  top: -141px;
+  left: 390px;
+  height: 18px;
+  position: relative;
+  right: 20px;
+}
+
+.logoutImg {
+  background: none;
+  border: none;
+  position: relative;
+  outline: none;
+  right: -540px;
+  top: -100px;
+  padding: 0;
+}
+
+.logoutImg img {
+  width: 24px; 
+  height: auto;
+  position: relative;
+  right: -50px;
+  top: 0px;
+  cursor: pointer;
+}
+
+
+.logoutImg:hover {
+  background: none;
+  box-shadow: none;
+  outline: none;
+}
+
+#markAsComplete {
+  position: relative;
+  top: -145px;
+  left: 405px;
+  font-family: "Zoho Puvi Light";
+  font-size: 12px;
+  height: 45px;
+  width: 180px;
+  background-color: white;
+  color: rgb(120, 120, 120);
+  border: solid;
+  border-color: rgb(197, 197, 197);
+  border-radius: 100px;
+}
+
+#markAsComplete:hover {
+  border-color: rgb(8 153 73);
+  color: rgb(8 153 73);
+}
+
+#taskDescription::placeholder {
+  position: relative;
+  font-size: 15px;
+  top: -35px;
+}
+
+.addButton {
+  font-family: "Zoho Puvi Light";
+  height: 40px;
+  width: 100px;
+  position: relative;
+  top: -130px;
+  cursor: pointer;
+}
+
+.inputask{
+  font-family: "Zoho Puvi Light";
+}
+
+.inpudesc{
+  font-family: "Zoho Puvi Light";
+  font-size: 12px;
+  position: relative;
+  top:-50px;
+  min-height: 18px;
+}
+
+.pendingList {
+  font-family: "Zoho Puvi Light";
+  font-size: 20px;
+  width: 150px;
+}
+
+.searchBox {
+  background-color: white;
+  border: solid; 
+  border-radius: 100px;
+  border-color: lightgrey;
+  font-family: "Zoho Puvi Light";
+  font-size: 12px;
+  display: block;
+  height: 10px;
+  width: 190px;
+  position: relative;
+  left: 529px;
+  top: -50px;
+}
+
+.completedTask {
+  font-family: "Zoho Puvi Light";
+}
+
+.completedTaskSection {
+  position: relative;
+  height: 10px;
+}
+
+.droppedTaskSection {
+  position: relative;
+  height: 10px;
+}
+
+#taskinput {
+  font-family: "Zoho Puvi Light";
+}
+
+#newTaskSection {
+  display: none;
+} 
+
+#pendingTaskSection {
+  display: none;
+} 
+
+#completedTaskSection {
+  display: none;
+}
+
+#droppedTaskSection {
+  display: none;
+}
+
+.completeListdesign {
+  font-family: "Zoho Puvi Light";
+  font-size: 20px;
+  width: 150px;
+}
+
+.droppedListdesign {
+  font-family: "Zoho Puvi Light";
+  font-size: 20px;
+  width: 150px;
+}
+
+.dropButton {
+  background-color: white;
+  border-radius: 1px;
+  border-color: black; 
+  color: black;
+}
+
+#dropButton {
+  position: relative;
+  top: -145px;
+  left: 410px;
+  font-family: "Zoho Puvi Light";
+  font-size: 12px;
+  height: 45px;
+  width: 100px;
+  background-color: white;
+  color: rgb(120, 120, 120);
+  border: solid;
+  border-color: rgb(197, 197, 197);
+  border-radius: 100px;
+}
+
+#dropButton:hover:enabled {
+  border-color: rgb(249 178 29);
+  color: rgb(249 178 29);
+}
+
+.undropButton {
+  background-color: white;
+  color: rgb(120, 120, 120);
+  border: solid;
+  border-color: rgb(197, 197, 197);
+  border-radius: 100px;
+  width: 80px;
+  height: 40px;
+  padding: 0;
+  position: relative;
+  top: -100px;
+  right: -220px;
+  font-size: 12px;
+}
+
+.undropButton:hover:enabled {
+  color: rgb(8 153 73);
+  border-color: rgb(8 153 73);
+  background-color: white;
+}
+
+/* image upload */
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: none;
+    /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); */
+    position: relative; 
+    right: -435px;
+    top: -110px;
+    height: 45px;
+    width: 310px;
+}
+
+#fileUpload {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    position: relative;
+    right: -4px;
+    bottom: -4px;
+    width: 290px;
+    font-family: "Zoho Puvi Light";
+}
+
+.image-container {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  margin-top: 10px;
+  position: relative;
+  right: -350px;
+  top: -100px;
+}
+
+.uploadedImage {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  object-fit: cover;
+  display: block;
+  margin-top: 10px;
+  border-radius: 100px;
+  position: relative;
+  right: -350px;
+  top: -100px;
+  cursor: pointer;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.9);
+}
+
+.modal-content {
+  display: block;
+  margin: auto;
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 8px;
+}
+
+.close {
+  position: absolute;
+  top: 20px;
+  right: 35px;
+  font-size: 40px;
+  color: #fff;
+  cursor: pointer;
+}
