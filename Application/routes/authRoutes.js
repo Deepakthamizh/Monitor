@@ -15,7 +15,7 @@ router.get('/auth/google/callback',
   }
 );
 
-router.get('/auth/github',
+/*router.get('/auth/github',
   passport.authenticate('github', { scope: ['user:email'] })
 );
 
@@ -26,19 +26,6 @@ router.get('/auth/github/callback',
     res.cookie("premium", req.user.premium);
     res.redirect('/home');
   }
-);
-
-router.get('/auth/microsoft',
-  passport.authenticate('microsoft', { prompt: 'consent' })
-);
-
-router.get('/auth/microsoft/callback',
-  passport.authenticate('microsoft', { failureRedirect: '/login.html' }),
-  (req, res) => {
-    res.cookie("userId", req.user._id.toString(), { httpOnly: true, sameSite: "Strict", secure: true });
-    res.cookie("premium", req.user.premium);
-    res.redirect('/home');
-  }
-);
+);*/
 
 module.exports = router;

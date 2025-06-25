@@ -21,6 +21,25 @@
   font-family: "Zoho Puvi Light";
 }
 
+.refreshButton {
+  font-family: "Zoho Puvi Light";
+  background-color: white;
+  border: solid;
+  border-color: rgb(120, 120, 120);
+  color: rgb(120, 120, 120);
+  height: 40px;
+  width: 120px;
+  cursor: pointer;
+  padding: 0px;
+  position: relative;
+  top: -107px;
+  right: -586px;
+}
+
+.refreshButton:hover{
+  background-color: white;
+}
+
 .addNewTask {
   font-family: "Zoho Puvi Light";
   background-color: white;
@@ -163,7 +182,7 @@
   width: 24px; 
   height: auto;
   position: relative;
-  right: -50px;
+  right: -30px;
   top: 0px;
   cursor: pointer;
 }

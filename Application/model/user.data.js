@@ -51,7 +51,11 @@ const LoginSchema = new mongoose.Schema({
   premium: {
     type: Boolean,
     default: false
-  }
+  },
+  refreshToken: {
+    type: String,
+    required: false
+}
 })
 
 const collection = mongoose.model("Collection1", LoginSchema);

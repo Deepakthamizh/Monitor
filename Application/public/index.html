@@ -11,9 +11,11 @@
       <h1 class="mylist">My List</h1> 
 
       <h2 class="loginId"> Welcome, <span id="userName"></span>!</h2> 
-      <button class="logoutImg" type="button" onclick="logout()">
+      <button class="logoutImg" type="button" onclick="logout()" title="Logout">
         <img src="referenceImages/logout.png">
       </button> 
+
+      <button class="refreshButton" onclick="refreshContent()">Refresh</button>
     </div>
 
     <button onclick="display()" class="addNewTask">
@@ -70,6 +72,9 @@
     </div>
 
     <script>
+      function refreshContent() {
+        location.reload();
+      }
       
       window.onpageshow = function(event) {
         if (event.persisted || window.performance.navigation.type === 2) {
@@ -298,8 +303,9 @@
 
           }
 
-          const username = getCookieValue("username");
-          document.getElementById("userName").textContent = username.includes('@') ? username.split('@')[0] : username;
+          const rawUsername = decodeURIComponent(getCookieValue("username"));  // decode %40 to @
+          const username = rawUsername.includes('@') ? rawUsername.split('@')[0].split('.')[0] : rawUsername.split('.')[0];
+          document.getElementById("userName").textContent = username;
 
         fetch('/get-tasks')
           .then(response => response.json())
@@ -334,7 +340,7 @@
           
               if (task.status == "pending") {
                 document.getElementById("output").appendChild(division);
-              } else if (task.status == "completed") {
+              } else if (task.status == "Completed") {
                 document.getElementById("completedTaskList").appendChild(division);
               } else if (task.status == "dropped") {
                 document.getElementById("droppedTaskList").appendChild(division);
@@ -366,6 +372,7 @@
           .catch(error => {
             console.error('Error loading tasks:', error);
           });
+        loadCrmTasks();
       };
       
       function searchTask() {
@@ -414,6 +421,36 @@
             task.style.display = "none";
           }
         });
+      }
+
+      function addTaskToDOM(taskObj, Status) {
+      const division = document.createElement("div");
+      division.className = "listingBoth";
+
+        division.innerHTML = `
+          <p class="inputask">${taskObj.task}</p><br> 
+          <p class="inpudesc">${taskObj.description}</p>
+          <button id="deleteButton" disabled style="opacity: 0.5; cursor: not-allowed;" title="Zoho tasks cannot be deleted">
+            <img src="referenceImages/delete.png" id="deleteButtonImg">
+          </button>
+        `;
+
+        const normalizedStatus = Status?.toLowerCase();
+        const container = (normalizedStatus === "completed")? document. getElementById("completedTaskList"): document.getElementById("output")
+
+        container.appendChild(division);
+        console.log("Task fetched successfully");
+        console.log("Zoho task:", taskObj);
+      }
+
+      async function loadCrmTasks() {
+        const response = await fetch('/fetch-zoho-tasks');
+        const crmTasks = await response.json();
+
+        console.log("<< Received from backend:", crmTasks);
+        for (const task of crmTasks) {
+          addTaskToDOM(task, task.category); 
+        }
       }
 
       function logout() {

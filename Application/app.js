@@ -4,6 +4,7 @@ const express = require('express');
 const app = express(); //creating an app instance using express framework
 
 const session = require('express-session');
+const axios = require('axios');
 const passport = require('passport');
 require('./auth/passport-config'); // create this file in next step
 
@@ -22,7 +23,7 @@ app.use(express.urlencoded({extended:false}));
 app.use(cookieParser());
 
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'supersecret',
+  secret: 'secret_key',
   resave: false,
   saveUninitialized: false
 }));
@@ -118,7 +119,7 @@ app.delete('/delete-task/:id', isAuthenticated, async(req, res) => {
 app.put('/mark-complete/:id', isAuthenticated, async(req, res) => {
   try {
     const taskId = req.params.id;
-    await userModel.findByIdAndUpdate(taskId, {status: "completed"});
+    await userModel.findByIdAndUpdate(taskId, {status: "Completed"});
     res.status(200).json({message: "Task marked as completed"});
   }catch (error) {
     res.status(500).json({error: "Failed to mark task as completed"});
@@ -201,18 +202,163 @@ app.get('/auth/google/callback',
     // Set cookies like your local login
     res.cookie("userId", req.user._id.toString(), { httpOnly: true, sameSite: "Strict", secure: true });
     res.cookie("premium", req.user.premium);
-    res.redirect('/home'); // or your dashboard
+    res.redirect('/home'); 
   }
 );
+
+//redirecting to zoho login
+app.get('/auth/zoho', (req, res) => {
+  const clientId = process.env.ZOHO_CLIENT_ID;
+  const redirectUri = process.env.ZOHO_REDIRECT_URI;
+  const clientSecret = process.env.ZOHO_CLIENT_SECRET;
+  const scope = 'ZohoCRM.users.ALL,ZohoCRM.modules.ALL,ZohoCRM.settings.ALL';
+
+  const oauthUrl = `https://accounts.zoho.in/oauth/v2/auth?scope=${scope}&client_id=${clientId}&client_secret=${clientSecret}&response_type=code&access_type=offline&redirect_uri=${redirectUri}`;
+
+  res.redirect(oauthUrl);
+});
+
+app.get('/oauth/callback', async (req, res) => {
+  console.log("Inside /oauth/callback");
+  const code = req.query.code;
+  console.log(code);
+
+  try {
+    const tokenResponse = await axios.post('https://accounts.zoho.in/oauth/v2/token', null, {
+      params: {
+        code: code,
+        grant_type: 'authorization_code',
+        client_id: process.env.ZOHO_CLIENT_ID,
+        client_secret: process.env.ZOHO_CLIENT_SECRET,
+        redirect_uri: process.env.ZOHO_REDIRECT_URI,
+      },
+    });
+
+    console.log('Full Zoho Token Response Data:', tokenResponse.data)
+
+    const { access_token, refresh_token, api_domain: apiDomain } = tokenResponse.data;
+    req.session.zohoAccessToken = access_token;
+    console.log('API Domain received from Zoho:', apiDomain);
+
+
+    const userResponse = await axios.get(`${apiDomain}/crm/v2/users?type=CurrentUser`, {
+      headers: {
+        Authorization: `Zoho-oauthtoken ${access_token}`
+      }
+    });
+    console.log('Zoho user response:', userResponse.data);
+
+    const zohoUser = userResponse.data.users[0];
+    const email = zohoUser.email;
+    const name = zohoUser.first_name;
+
+    let user = await collection.findOne({ name: email });
+
+    if (!user) {
+      user = await new collection({ name: email, password: '', premium: false }).save();
+    }
+    
+    user.refreshToken = refresh_token;
+    await user.save();
+    
+    const refreshResponse = await axios.post('https://accounts.zoho.in/oauth/v2/token', null, {
+      params: {
+        refresh_token: user.refreshToken,
+        client_id: process.env.ZOHO_CLIENT_ID,
+        client_secret: process.env.ZOHO_CLIENT_SECRET,
+        grant_type: 'refresh_token',
+      }
+    });
+
+    res.cookie("userId", user._id.toString(), { httpOnly: true, sameSite: "Strict" });
+    res.cookie("premium", user.premium);
+
+    res.cookie("username", user.name);
+
+    res.redirect('/home');
+  } catch (err) {
+    console.error('OAuth error:', err.response?.data || err.message);
+    res.redirect('/login');
+  }
+});
+
+
+//middleware function that ensures the access token is avaliable or not. 
+
+async function ensureZohoAccessToken(req, res, next) {
+  try {
+    if (!req.session.zohoAccessToken) {
+      const userId = req.cookies.userId;
+      const user = await collection.findById(userId);
+
+      if (!user || !user.refreshToken) {
+        return res.status(403).json({ message: "No Zoho refresh token found" });
+      }
+
+      const refreshResponse = await axios.post('https://accounts.zoho.in/oauth/v2/token', null, {
+        params: {
+          refresh_token: user.refreshToken,
+          client_id: process.env.ZOHO_CLIENT_ID,
+          client_secret: process.env.ZOHO_CLIENT_SECRET,
+          grant_type: 'refresh_token',
+        }
+      });
+
+      const newAccessToken = refreshResponse.data.access_token;
+      req.session.zohoAccessToken = newAccessToken;
+    }
+
+    next();
+  } catch (error) {
+    console.error("Error refreshing Zoho token:", error.response?.data || error.message);
+    res.status(401).json({ message: "Failed to refresh Zoho access token" });
+  }
+}
+
+
+//fetch the tasks from ZOHO CRM and sends that to the frontend as json 
+
+app.get('/fetch-zoho-tasks', ensureZohoAccessToken, async (req, res) => {
+  const access_token = req.session.zohoAccessToken;
+  const userEmail = req.cookies.username;
+
+  try {
+    const response = await axios.get('https://www.zohoapis.in/crm/v2/Tasks', {
+      headers: {
+        Authorization: `Zoho-oauthtoken ${access_token}`
+      },
+      params: {
+        criteria: `(Owner.email:equals:${userEmail})`
+      }
+    });
+
+    console.log("Raw Zoho task data:", JSON.stringify(response.data.data, null, 2));
+
+    const crmTasks = response.data.data.map(task => ({
+      task: task.Subject || "Untitled",
+      // dueDate: task.Due_Date || "",
+      description: task.Description || "",
+      category: (task.Status?.toLowerCase() === "completed")? "Completed": "pending"
+    }));
+
+
+    console.log(">> Sending to frontend:", crmTasks);
+    res.json(crmTasks);
+  } catch (error) {
+    console.error("Error fetching Zoho tasks:", error.response?.data || error.message);
+    res.status(500).json({ message: "Failed to fetch Zoho tasks" });
+  }
+});
+
 
 // Optional logout
 app.get('/logout', (req, res) => {
   req.logout(err => {
     res.clearCookie("userId");
     res.clearCookie("premium");
+    res.clearCookie("username");
     res.redirect('/login');
   });
 });
-
 
 module.exports=app; //exporting the file which creates access for using this file in other files
