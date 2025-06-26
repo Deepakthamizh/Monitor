@@ -52,6 +52,9 @@ const LoginSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  zohoUserId: {
+    type: String,
+  },
   refreshToken: {
     type: String,
     required: false

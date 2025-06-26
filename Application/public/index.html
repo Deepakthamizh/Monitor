@@ -167,19 +167,26 @@
 
           const imageHTML = data.imagePath ? `<div id="uploadImgDiv"> <img src="${data.imagePath}" onclick="openView('${data.imagePath}')" id="openImage" class="uploadedImage"> </div>` : "";
 
-          division.innerHTML = `
-            <p class="inputask">${input}</p> <br> 
-            <p class="inpudesc">${description}</p>
-            ${imageHTML}
-            ${getCookieValue("premium") === "true" ? `
+          division.innerHTML = `<div class ="listingAllTasks">
+            <div class="taskText">
+              <p class="inputask">${input}</p> <br> 
+              <p class="inpudesc">${description}</p>
+            </div>
+
+            <div class="insideButtons">
+              <div class="imageSlot">
+                ${imageHTML} 
+              </div>
+              ${getCookieValue("premium") === "true" ? `
               <button id="markAsComplete" onclick="completedTask(this)">Mark as Complete</button>
               <button id="dropButton" onclick="droppedTask(this)">Drop</button>` : `
               <button id="markAsComplete" onclick="completedTask(this)">Mark as Complete</button>
               <button id="dropButton" disabled style="opacity: 0.5; cursor: not-allowed;" title="Premium only">Drop</button>`}
-            <button id="deleteButton" onclick="deleteTask(this)">
+              <button id="deleteButton" onclick="deleteTask(this)">
               <img src="referenceImages/delete.png" id="deleteButtonImg">
-            </button>
-          `;
+              </button> 
+            </div>
+          </div>`;
 
           document.getElementById("output").appendChild(division);
 
@@ -325,18 +332,23 @@
 
               const imageHTML = task.imagePath ? `<div id="uploadImgDiv"> <img src="${task.imagePath}" onclick="openView('${task.imagePath}')" id="openImage" class="uploadedImage"> </div>` : "";
 
-              division.innerHTML = `
-                <p class="inputask">${task.newTask}</p> <br> 
-                <p class="inpudesc">${task.description}</p>
-                ${imageHTML}
+              division.innerHTML = `<div class ="listingAllTasks">
+                <div class="taskText">
+                  <p class="inputask">${task.newTask}</p> <br> 
+                  <p class="inpudesc">${task.description}</p>
+                </div>
+                <div class="insideButtons">
+                  <div class="imageSlot">
+                    ${imageHTML}
+                  </div>
                 ${task.status === "pending" ? `
                   <button id="markAsComplete" onclick="completedTask(this)">Mark as Complete</button>
                   <button id="dropButton" onclick="droppedTask(this)" ${isPremium ? '' : 'disabled style="opacity: 0.5; cursor: not-allowed;" title="Premium only"'}>Drop</button>
                 ` : ""}
                 <button id="deleteButton" onclick="deleteTask(this)">
                   <img src="referenceImages/delete.png" id="deleteButtonImg">
-                </button>
-              `;
+                </button></div>
+              </div>`;
           
               if (task.status == "pending") {
                 document.getElementById("output").appendChild(division);
@@ -427,13 +439,18 @@
       const division = document.createElement("div");
       division.className = "listingBoth";
 
-        division.innerHTML = `
-          <p class="inputask">${taskObj.task}</p><br> 
-          <p class="inpudesc">${taskObj.description}</p>
-          <button id="deleteButton" disabled style="opacity: 0.5; cursor: not-allowed;" title="Zoho tasks cannot be deleted">
-            <img src="referenceImages/delete.png" id="deleteButtonImg">
-          </button>
-        `;
+        division.innerHTML = `<div class ="listingAllTasks">
+          <div class="taskText">
+            <p class="inputask">${taskObj.task}</p><br> 
+            <p class="inpudesc">${taskObj.description}</p>
+          <div>
+          <div class="insideButtonsCrm">
+            <button class="crmComplete" id="markAsCompleteCrm" onclick="completeCrmTask('${taskObj.id}')">Mark as Complete</button>  
+            <button id="deleteButton" disabled style="opacity: 0.5; cursor: not-allowed;" title="Zoho tasks cannot be deleted">
+              <img src="referenceImages/delete.png" id="deleteButtonImg">
+            </button>
+          </div>
+        </div>`;
 
         const normalizedStatus = Status?.toLowerCase();
         const container = (normalizedStatus === "completed")? document. getElementById("completedTaskList"): document.getElementById("output")
@@ -451,6 +468,25 @@
         for (const task of crmTasks) {
           addTaskToDOM(task, task.category); 
         }
+      }
+
+      function completeCrmTask(taskId){
+        console.log('Sending taskId to backend:', taskId);
+        fetch('/mark-complete', {
+          method:'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({taskId})
+        })
+        .then(res => res.json())
+        .then(data => {
+          if(data.success) {
+            alert('Task marked as completed in Zoho CRM');
+          } else {
+            alert('Failed to update task in zoho')
+          }
+        });
       }
 
       function logout() {

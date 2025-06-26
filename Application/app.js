@@ -132,6 +132,7 @@ app.put('/mark-dropped/:id', isAuthenticated, async(req, res) => {
     const userId = req.cookies.userId;
 
     const user = await collection. findById(userId)
+    
     if (!user.premium){
       return res.status(403).json ({message: "Invalid access, not a premium user"})
     }
@@ -251,6 +252,7 @@ app.get('/oauth/callback', async (req, res) => {
     const zohoUser = userResponse.data.users[0];
     const email = zohoUser.email;
     const name = zohoUser.first_name;
+    const zohoUserId = zohoUser.id;
 
     let user = await collection.findOne({ name: email });
 
@@ -259,6 +261,7 @@ app.get('/oauth/callback', async (req, res) => {
     }
     
     user.refreshToken = refresh_token;
+    user.zohoUserId = zohoUserId;
     await user.save();
     
     const refreshResponse = await axios.post('https://accounts.zoho.in/oauth/v2/token', null, {
@@ -320,7 +323,8 @@ async function ensureZohoAccessToken(req, res, next) {
 
 app.get('/fetch-zoho-tasks', ensureZohoAccessToken, async (req, res) => {
   const access_token = req.session.zohoAccessToken;
-  const userEmail = req.cookies.username;
+  const user = await collection.findById(req.cookies.userId);
+  const zohoUserId = user.zohoUserId;
 
   try {
     const response = await axios.get('https://www.zohoapis.in/crm/v2/Tasks', {
@@ -328,13 +332,14 @@ app.get('/fetch-zoho-tasks', ensureZohoAccessToken, async (req, res) => {
         Authorization: `Zoho-oauthtoken ${access_token}`
       },
       params: {
-        criteria: `(Owner.email:equals:${userEmail})`
+        criteria: `(Owner.id:equals:${zohoUserId})`
       }
     });
 
     console.log("Raw Zoho task data:", JSON.stringify(response.data.data, null, 2));
 
     const crmTasks = response.data.data.map(task => ({
+      id: task.id,
       task: task.Subject || "Untitled",
       // dueDate: task.Due_Date || "",
       description: task.Description || "",
@@ -342,11 +347,50 @@ app.get('/fetch-zoho-tasks', ensureZohoAccessToken, async (req, res) => {
     }));
 
 
-    console.log(">> Sending to frontend:", crmTasks);
+    console.log("Sending to frontend:", crmTasks);
     res.json(crmTasks);
   } catch (error) {
     console.error("Error fetching Zoho tasks:", error.response?.data || error.message);
     res.status(500).json({ message: "Failed to fetch Zoho tasks" });
+  }
+});
+
+app.post('/mark-complete', isAuthenticated, async (req,res) => {
+  const {taskId} = req.body;
+  const userId = req.cookies.userId;
+
+  try{
+    const user = await collection.findById(userId);
+    if(!user || !user.refreshToken) {
+      return res.status(401).json({success: false, message: 'Unauthorized'});
+    }
+
+    const tokenResponse = await axios.post ('https://accounts.zoho.in/oauth/v2/token', null, {
+      params: {
+        refresh_token: user.refreshToken, 
+        client_id: process.env.ZOHO_CLIENT_ID,
+        client_secret: process.env.ZOHO_CLIENT_SECRET,
+        grant_type: 'refresh_token'
+      }
+    });
+
+    const accessToken = tokenResponse.data.access_token;
+
+    const updateResponse = await axios.patch (
+      'https://www.zohoapis.in/crm/v2/Tasks',
+      {
+        data: [{id: taskId, Status: "Completed"}]
+      },
+      {
+        headers: {
+          Authorization: `Zoho-oauthtoken ${accessToken}`
+        }
+      }
+    );
+    res.json({ success: true, data: updateResponse.data});
+  } catch (err) {
+    console.error("Error updating task in Zoho", err.response?.data || err.message);
+    res.status(500).json({success: false, message: 'Zoho failed to update'});
   }
 });
 

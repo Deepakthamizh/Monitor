@@ -3,6 +3,92 @@
   src: url("fonts/Zoho Puvi Light.ttf");
 }
 
+.listingAllTasks {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  background-color: white;
+  width: 705px;
+  padding: 10px 15px;
+  border-radius: 10px;
+  border: 2px solid rgb(216,216,216); 
+  margin: 20px 0;
+}
+
+.completedTask .listingAllTasks {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  background-color: white;
+  width: 705px;
+  padding: 10px -15px;
+  border-radius: 10px;
+  border: 2px solid rgb(216,216,216); 
+  margin: 35px 0;
+}
+
+.completedTask .crmComplete {
+  display: none;
+}
+
+.insideButtons {
+  display: flex;
+  align-items: center;
+}
+
+.insideButtonsCrm {
+  position: absolute;
+  right: -100px;
+  top: 15px;
+}
+
+#markAsCompleteCrm {
+  position: static;
+  height: 40px;
+  font-size: 12px;
+  padding: 0 15px;
+  border-radius: 100px;
+  font-family: "Zoho Puvi Light";
+}
+
+#markAsCompleteCrm:hover {
+  background-color: white;
+  border: solid;
+  border-color: rgb(8 153 73);
+  color: rgb(8 153 73);
+}
+
+.imageSlot {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.imageslot img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 100px;
+}
+
+.imagePlaceholder {
+  width: 40px;
+  height: 40px;
+  border-radius: 100px;
+  background-color: transparent;
+}
+
+.taskText {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex-grow: 1;
+  padding-right: 10px;
+}
+
 .headingDiv {
   width: 620px;
   height: 90px;
@@ -93,14 +179,14 @@
 }
 
 #droppedTaskList .listingBoth #openImage {
-  top: -77px;
-  right: -250px;
+  top: 10px;
+  right: 120px;
   margin-top: -15px;
 }
 
 #droppedTaskList .listingBoth .undropButton {
-  top: -117px;
-  right: -220px;
+  top: 30px;
+  right: -30px;
   margin-top: -15px;
 }
 
@@ -141,7 +227,6 @@
 .listingTasks {
   position: relative;
   top: -60px;
-  height: 100px;
 }
 
 .listingBoth {
@@ -150,22 +235,23 @@
   font-size: 16px;
   position: relative;
   top: 30px;
+  margin-bottom: 20px;
 }
 
 #deleteButton {
-  border-radius: 100px;
-  background-color: white;
-  position: relative;
-  right: 5px;
+  position: static;
+  border-radius: 200px;
+  height: 40px;
+  padding: 0 15px;
+  background-color: rgb(250 250 250);
 }
 
 #deleteButtonImg {
-  position: relative;
-  top: -141px;
-  left: 390px;
-  height: 18px;
-  position: relative;
-  right: 20px;
+  position: static;
+  height: 15px;
+  font-size: 12px;
+  padding: 0 15px;
+  border-radius: 100px;
 }
 
 .logoutImg {
@@ -195,21 +281,19 @@
 }
 
 #markAsComplete {
-  position: relative;
-  top: -145px;
-  left: 405px;
-  font-family: "Zoho Puvi Light";
-  font-size: 12px;
-  height: 45px;
-  width: 180px;
+  position: static;
   background-color: white;
-  color: rgb(120, 120, 120);
-  border: solid;
-  border-color: rgb(197, 197, 197);
+  color: rgb(8 153 73);
+  height: 40px;
+  font-size: 12px;
+  padding: 0 15px;
   border-radius: 100px;
+  font-family: "Zoho Puvi Light";
 }
 
 #markAsComplete:hover {
+  background-color: white;
+  border: solid;
   border-color: rgb(8 153 73);
   color: rgb(8 153 73);
 }
@@ -231,14 +315,16 @@
 
 .inputask{
   font-family: "Zoho Puvi Light";
+  margin: 0;
 }
 
 .inpudesc{
+  margin: -19px 0 0 0; 
   font-family: "Zoho Puvi Light";
   font-size: 12px;
-  position: relative;
-  top:-50px;
+  color: #555;
   min-height: 18px;
+  top: 100px;
 }
 
 .pendingList {
@@ -316,18 +402,12 @@
 }
 
 #dropButton {
-  position: relative;
-  top: -145px;
-  left: 410px;
-  font-family: "Zoho Puvi Light";
+  position: static;
+  height: 40px;
   font-size: 12px;
-  height: 45px;
-  width: 100px;
-  background-color: white;
-  color: rgb(120, 120, 120);
-  border: solid;
-  border-color: rgb(197, 197, 197);
+  padding: 0 15px;
   border-radius: 100px;
+  font-family: "Zoho Puvi Light";
 }
 
 #dropButton:hover:enabled {
@@ -344,9 +424,7 @@
   width: 80px;
   height: 40px;
   padding: 0;
-  position: relative;
-  top: -100px;
-  right: -220px;
+  position: absolute;
   font-size: 12px;
 }
 
@@ -401,8 +479,8 @@
   margin-top: 10px;
   border-radius: 100px;
   position: relative;
-  right: -350px;
-  top: -100px;
+  right: 20px;
+  top: -5px;
   cursor: pointer;
 }
 
@@ -434,3 +512,6 @@
   color: #fff;
   cursor: pointer;
 }
+
+
+
