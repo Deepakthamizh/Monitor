@@ -325,6 +325,7 @@ app.get('/fetch-zoho-tasks', ensureZohoAccessToken, async (req, res) => {
   const access_token = req.session.zohoAccessToken;
   const user = await collection.findById(req.cookies.userId);
   const zohoUserId = user.zohoUserId;
+  const userId = req.cookies.userId;
 
   try {
     const response = await axios.get('https://www.zohoapis.in/crm/v2/Tasks', {
@@ -336,19 +337,40 @@ app.get('/fetch-zoho-tasks', ensureZohoAccessToken, async (req, res) => {
       }
     });
 
-    console.log("Raw Zoho task data:", JSON.stringify(response.data.data, null, 2));
+    const crmTasks = response.data.data;
+    const tasksToSend = [];
 
-    const crmTasks = response.data.data.map(task => ({
-      id: task.id,
-      task: task.Subject || "Untitled",
-      // dueDate: task.Due_Date || "",
-      description: task.Description || "",
-      category: (task.Status?.toLowerCase() === "completed")? "Completed": "pending"
-    }));
+    for (const task of crmTasks) {
+      const zohoId = task.id;
 
+      const existing = await userModel.findOne({ zohoId });
+      if(!existing) {
+        const newZohoTask = new userModel({
+          newTask: task.Subject || "Untitled",
+          description: task.Description || "",
+          status: (task.Status?.toLowerCase() === "completed")? "completed" : "pending",
+          userId: userId,
+          zohoId: zohoId,
+          source: "zohoCRM"
+        });
+        const saved = await newZohoTask.save();
 
-    console.log("Sending to frontend:", crmTasks);
-    res.json(crmTasks);
+        tasksToSend.push({
+          id: saved.zohoId,
+          task: saved.newTask,
+          description: saved.description,
+          category: saved.status
+        });
+      } else {
+        tasksToSend.push({
+          id: existing.zohoId,
+          task: existing.newTask,
+          description: existing.description,
+          category: existing.status
+        });
+      }
+    }
+    res.json(tasksToSend);
   } catch (error) {
     console.error("Error fetching Zoho tasks:", error.response?.data || error.message);
     res.status(500).json({ message: "Failed to fetch Zoho tasks" });
@@ -387,6 +409,12 @@ app.post('/mark-complete', isAuthenticated, async (req,res) => {
         }
       }
     );
+
+    await userModel.findOneAndUpdate(
+      { zohoId: taskId, userId: userId },
+      { $set: {status: "Completed"}}
+    );
+
     res.json({ success: true, data: updateResponse.data});
   } catch (err) {
     console.error("Error updating task in Zoho", err.response?.data || err.message);
@@ -394,6 +422,27 @@ app.post('/mark-complete', isAuthenticated, async (req,res) => {
   }
 });
 
+
+app.post('./zoho-webhook', express.json(), async (req, res) => {
+  try {
+    console.log("Webhook received update:", req.body);
+
+    const taskData = req.body.data[0];
+    const zohoTaskId = taskData.id;
+    const newStatus = taskData.Status;
+
+    await userModel.findOneAndUpdate(
+      {id: zohoTaskId}, 
+      {
+        category: newStatus?.toLowerCase() === "completed"? "Completed" : "Pending"
+      }
+    );
+    res.status(200).send("Task Updated.");
+  } catch (error) {
+    console.error("Error occured during webhook handling:", error);
+    res.status(500).send("Error while processing webhook");
+  }
+});
 
 // Optional logout
 app.get('/logout', (req, res) => {

@@ -21,6 +21,16 @@ const userSchema = new Schema({
     type: String,
     required: false
   },
+  zohoId: {
+    type: String,
+    unique: true,
+    sparse: true
+  },
+  source: {
+    type: String,
+    enum: ['local', 'zohoCRM'],
+    default: 'local'
+  },
   premium: {
     type: Boolean, 
     default: false
@@ -37,14 +47,6 @@ const LoginSchema = new mongoose.Schema({
     required:false
   },
   googleId: {
-    type: String, 
-    required: false
-  },
-  microsoftId: {
-    type: String, 
-    required: false
-  },
-  githubId: {
     type: String, 
     required: false
   },
