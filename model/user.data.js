@@ -1,4 +1,4 @@
-const mongoose = require('./config/db'); // Import the full mongoose object
+const mongoose = require('../config/db'); // Import the full mongoose object
 
 const { Schema } = mongoose;
 

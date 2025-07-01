@@ -2,6 +2,7 @@ require('dotenv').config();
 
 const express = require('express');
 const app = express(); //creating an app instance using express framework
+const cors = require('cors');
 
 const session = require('express-session');
 const axios = require('axios');
@@ -16,6 +17,11 @@ const multer = require('multer');
 const path = require('path'); //importing path module
 
 //oauth login process
+
+app.use(cors({
+  origin: 'https://monitor-backend-shxt.onrender.com',
+  credentials: true
+}));
 
 app.use(express.static(__dirname)); //project files are being served
 app.use(express.json());
