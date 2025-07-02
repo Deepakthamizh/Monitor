@@ -19,7 +19,7 @@ const path = require('path'); //importing path module
 //oauth login process
 
 app.use(cors({
-  origin: 'https://monitor-backend-shxt.onrender.com',
+  origin: 'https://monitor-9eeb6.web.app',
   credentials: true
 }));
 
