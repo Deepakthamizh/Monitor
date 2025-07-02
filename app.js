@@ -23,7 +23,7 @@ app.use(cors({
   credentials: true
 }));
 
-app.use(express.static(__dirname)); //project files are being served
+app.use(express.static(path.join(__dirname, 'public'))); //project files are being served
 app.use(express.json());
 app.use(express.urlencoded({extended:false}));
 app.use(cookieParser());
@@ -56,12 +56,12 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 app.get('/', (req, res) => {
-  res.status(200).json({ message: 'Backend is working' });
+  res.redirect('/login.html');
 });
 
-// app.get("/login", (req, res) => {
-//   res.sendFile(path.join(__dirname, 'login.html'));
-// });
+app.get("/login", (req, res) => {
+   res.sendFile(path.join(__dirname, 'login.html'));
+});
  
 app.post('/add-task', isAuthenticated, upload.single('image'), async (req, res)=>{
   try {
@@ -150,13 +150,13 @@ app.put('/mark-dropped/:id', isAuthenticated, async(req, res) => {
   }
 });
 
-// app.get("/signup", (req, res) => {
-//   res.sendFile(path.join(__dirname, 'signup.html'));
-// });
+app.get("/signup", (req, res) => {
+ res.sendFile(path.join(__dirname, 'signup.html'));
+});
 
-// app.get("/home", (req, res) => {
-//   res.sendFile(path.join(__dirname, '/public/index.html'));
-// });
+app.get("/home", (req, res) => {
+  res.sendFile(path.join(__dirname, '/public/index.html'));
+});
 
 app.post("/signup", async (req,res)=>{
 

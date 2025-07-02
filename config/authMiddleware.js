@@ -4,7 +4,7 @@ function isAuthenticated(req, res, next) {
     if (req.headers.accept && req.headers.accept.includes("application/json")) {
       return res.status(401).json({message: "Unauthorized User: Please log in"});
     }
-    return res.redirect("/login");
+    return res.redirect("/login.html");
   }
   next();
 }
