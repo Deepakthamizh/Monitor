@@ -56,7 +56,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 app.get('/', (req, res) => {
-  res.redirect('/login');
+  res.status(200).json({ message: 'Backend is working' });
 });
 
 // app.get("/login", (req, res) => {
