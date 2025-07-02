@@ -1,8 +1,11 @@
 function isAuthenticated(req, res, next) {
-  const userId = req.cookies.userId;
+  const userId = req.session.userId;
 
   if (!userId) {
-    return res.status(401).json({ message: "Unauthorized User: Please log in" });
+    if (req.headers.accept && req.headers.accept.includes("application/json")) {
+      return res.status(401).json({ message: "Unauthorized User: Please log in" });
+    }
+    return res.redirect("/login.html");
   }
 
   next();
