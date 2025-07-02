@@ -56,7 +56,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 app.get('/', (req, res) => {
-  res.redirect('/login.html');
+  res.send("API Server is running");
 });
 
 app.get("/login", (req, res) => {
