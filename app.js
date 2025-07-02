@@ -167,7 +167,7 @@ app.post("/signup", async (req,res)=>{
 
   await new collection(data).save();
 
-  res.redirect('/login');
+  res.redirect('https://monitor---a-todo-app.web.app/login.html');
   
 });
 
@@ -204,12 +204,12 @@ app.get('/auth/google',
 
 // Callback URL after login
 app.get('/auth/google/callback',
-  passport.authenticate('google', { failureRedirect: '/login' }),
+  passport.authenticate('google', { failureRedirect: 'https://monitor---a-todo-app.web.app/login.html' }),
   (req, res) => {
     // Set cookies like your local login
     res.cookie("userId", req.user._id.toString(), { httpOnly: true, sameSite: "Strict", secure: true });
     res.cookie("premium", req.user.premium);
-    res.redirect('/home'); 
+    res.redirect('https://monitor---a-todo-app.web.app/index.html'); 
   }
 );
 
@@ -456,7 +456,7 @@ app.get('/logout', (req, res) => {
     res.clearCookie("userId");
     res.clearCookie("premium");
     res.clearCookie("username");
-    res.redirect('/login');
+    res.redirect('https://monitor---a-todo-app.web.app/login.html');
   });
 });
 
