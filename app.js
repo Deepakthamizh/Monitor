@@ -72,7 +72,7 @@ app.post('/add-task', isAuthenticated, upload.single('image'), async (req, res)=
 
     const taskName = req.body.newTask;
     const taskDetails = req.body.description;
-    const userId = req.session.userId; //getting the userId from the stored cookie
+    const userId = req.user?._id || req.session.userId; //getting the userId from the stored cookie
 
     const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
 
@@ -99,7 +99,7 @@ app.post('/add-task', isAuthenticated, upload.single('image'), async (req, res)=
 
 app.get('/get-tasks', isAuthenticated, async (req, res)=>{
   try {
-    const userId = req.session.userId;
+    const userId = req.user?._id || req.session.userId;
     
     const tasks = await userModel.find({ userId });
 
@@ -112,7 +112,7 @@ app.get('/get-tasks', isAuthenticated, async (req, res)=>{
 app.delete('/delete-task/:id', isAuthenticated, async(req, res) => {
   try {
     const taskId = req.params.id;
-    const userId = req.session.userId;
+    const userId = req.user?._id || req.session.userId;
 
     const task = await userModel.findOne({_id: taskId, userId: userId});
     if (!task) {
@@ -139,7 +139,7 @@ app.put('/mark-complete/:id', isAuthenticated, async(req, res) => {
 app.put('/mark-dropped/:id', isAuthenticated, async(req, res) => {
   try {
     const taskId = req.params.id;
-    const userId = req.session.userId;
+    const userId = req.user?._id || req.session.userId;
 
     const user = await collection. findById(userId)
     
@@ -305,7 +305,7 @@ app.get('/oauth/callback', async (req, res) => {
 async function ensureZohoAccessToken(req, res, next) {
   try {
     if (!req.session.zohoAccessToken) {
-      const userId = req.session.userId;
+      const userId = req.user?._id || req.session.userId;
       const user = await collection.findById(userId);
 
       if (!user || !user.refreshToken) {
@@ -339,7 +339,7 @@ app.get('/fetch-zoho-tasks', ensureZohoAccessToken, async (req, res) => {
   const access_token = req.session.zohoAccessToken;
   const user = await collection.findById(req.session.userId);
   const zohoUserId = user.zohoUserId;
-  const userId = req.session.userId;
+  const userId = req.user?._id || req.session.userId;
 
   try {
     const response = await axios.get('https://www.zohoapis.in/crm/v2/Tasks', {
@@ -393,7 +393,7 @@ app.get('/fetch-zoho-tasks', ensureZohoAccessToken, async (req, res) => {
 
 app.post('/mark-complete', isAuthenticated, async (req,res) => {
   const {taskId} = req.body;
-  const userId = req.session.userId;
+  const userId = req.user?._id || req.session.userId;
 
   try{
     const user = await collection.findById(userId);
