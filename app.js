@@ -23,10 +23,8 @@ app.use(cors({
   credentials: true
 }));
 
-app.use(express.static(path.join(__dirname, 'public'))); //project files are being served
 app.use(express.json());
 app.use(express.urlencoded({extended:false}));
-app.use(cookieParser());
 
 app.use(session({
   secret: 'secret_key',
@@ -40,6 +38,10 @@ app.use(session({
 
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(cookieParser());
+
+app.use(express.static(path.join(__dirname, 'public'))); //project files are being served
+
 
 const authRoutes = require('./routes/authRoutes.js');
 app.use(authRoutes);
@@ -98,6 +100,8 @@ app.post('/add-task', isAuthenticated, upload.single('image'), async (req, res)=
 
 
 app.get('/get-tasks', isAuthenticated, async (req, res)=>{
+    console.log("Session:", req.session);
+    console.log("User:", req.user);
   try {
     const userId = req.user?._id || req.session.userId;
     
