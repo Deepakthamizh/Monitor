@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const app = express(); //creating an app instance using express framework
 const cors = require('cors');
+const cookieParser = require('cookie-parser'); 
 const MongoStore = require("connect-mongo");
 
 const session = require('express-session');
