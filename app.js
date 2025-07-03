@@ -185,14 +185,14 @@ app.post("/signup", async (req,res)=>{
       premium: false
     };
 
-    const savedUser = await new collection(data).save();
-    console.log("Saved to MongoDB:", savedUser);
+    const savedUser = await new collection(data).save(); //tobe removed
+    console.log("Saved to MongoDB:", savedUser); //tobe removed
 
-    res.redirect('https://monitor---a-todo-app.web.app/login.html');
+    res.status(200).json({ message: "Signup successful" });
     
     } catch (err) {
-        console.error("Signup failed mongoDB error:", err.message); // ✅ See actual error in Render logs
-        res.status(500).send("Internal Server Error");
+        console.error("Signup failed mongoDB error:", err.message); // See actual error in Render logs
+        res.status(500).json({ error: "Internal Server Error" });
       }
   });
 
