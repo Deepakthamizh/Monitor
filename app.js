@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const app = express(); //creating an app instance using express framework
 const cors = require('cors');
+const MongoStore = require("connect-mongo");
 
 const session = require('express-session');
 const axios = require('axios');
@@ -27,13 +28,18 @@ app.use(express.json());
 app.use(express.urlencoded({extended:false}));
 
 app.use(session({
-  secret: 'secret_key',
+  secret: 'monitorapp@1234', // keep this secret safe
   resave: false,
   saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: 'mongodb+srv://Monitor:mongodb1018@cluster0.vh39a90.mongodb.net/Monitor',
+    ttl: 24 * 60 * 60 // = 1 day
+  }),
   cookie: {
     httpOnly: true,
-    sameSite: 'none', 
-    secure: true
+    secure: true,           // Required for cross-site cookies (HTTPS)
+    sameSite: 'none',       // Required for cross-site cookies
+    maxAge: 24 * 60 * 60 * 1000 // 1 day in ms
   }
 }));
 

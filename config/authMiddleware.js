@@ -1,3 +1,5 @@
+console.log("Session data:", req.session);
+
 function isAuthenticated(req, res, next) {
   
   const userId = req.user?._id || req.session.userId;
