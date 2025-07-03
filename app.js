@@ -13,7 +13,6 @@ require('./auth/passport-config.js'); // create this file in next step
 
 const {userModel, collection} =require('./model/user.data.js');
 const isAuthenticated = require('./config/authMiddleware.js');
-const cookieParser = require('cookie-parser');
 const multer = require('multer');
 const path = require('path'); //importing path module
 
@@ -27,6 +26,7 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({extended:false}));
 
+app.use(cookieParser());
 app.use(session({
   secret: 'monitorapp@1234', // keep this secret safe
   resave: false,
@@ -45,7 +45,6 @@ app.use(session({
 
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(cookieParser());
 
 app.use(express.static(path.join(__dirname, 'public'))); //project files are being served
 
@@ -66,6 +65,11 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+app.get("/check-session", (req, res) => {
+  console.log("Session:", req.session);
+  res.send("Session check done.");
+});
 
 
 app.get('/', (req, res) => {
