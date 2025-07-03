@@ -176,6 +176,7 @@ app.get("/home", (req, res) => {
 
 app.post("/signup", async (req,res)=>{
   try {
+    console.log("Received body:", req.body)
     const data={
       name:req.body.name,
       firebaseUID: req.body.firebaseUID,
