@@ -191,27 +191,33 @@ app.post("/signup", async (req,res)=>{
   
 });
 
-app.post("/login", async(req,res) => {
+app.post("/login", async (req, res) => {
   const { name, password } = req.body;
 
-  const user = await collection.findOne({name});
+  const user = await collection.findOne({ name });
 
-  if (user && user.password === password) {
-    // Store in session
-    req.session.userId = user._id.toString();
-    req.session.premium = user.premium;
-
-    res.cookie("userId", user._id.toString(), { httpOnly: true, sameSite: "none", secure: true });
-    res.cookie("premium", user.premium, {
-      sameSite: 'none',
-      secure: true,
-      httpOnly: true
-    });
-
-    res.json({ success: true, name: user.name, premium: user.premium });
-  } else {
-    res.status(401).json({ success: false, message: "Invalid credentials" });
+  if (!user) {
+    return res.status(401).json({ success: false, message: "User not found" });
   }
+
+  if (user.password !== password) {
+    return res.status(401).json({ success: false, message: "Incorrect password" });
+  }
+
+  // ✅ Set session data
+  req.session.userId = user._id;
+  req.session.premium = user.premium;
+
+  // ✅ Explicitly save the session before responding
+  req.session.save((err) => {
+    if (err) {
+      console.error("Session save error:", err);
+      return res.status(500).json({ success: false, message: "Session error" });
+    }
+
+    // ✅ Send response only after session is saved
+    res.json({ success: true, name: user.name, premium: user.premium });
+  });
 });
 
 app.put('/mark-pending/:id', isAuthenticated, async (req, res) => {
