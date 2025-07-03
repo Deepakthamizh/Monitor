@@ -179,6 +179,7 @@ app.post("/signup", async (req,res)=>{
   const data={
     name:req.body.name,
     password:req.body.password,
+    firebaseUID: req.body.firebaseUID
   }
 
   await new collection(data).save();
