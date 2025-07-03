@@ -38,17 +38,14 @@ const userSchema = new Schema({
 });
 
 const LoginSchema = new mongoose.Schema({
-  name:{
-    type: String, 
+  firebaseUID: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  name: {
+    type: String,
     required: true
-  },
-  password:{
-    type:String, 
-    required:false
-  },
-  googleId: {
-    type: String, 
-    required: false
   },
   premium: {
     type: Boolean,
@@ -60,8 +57,8 @@ const LoginSchema = new mongoose.Schema({
   refreshToken: {
     type: String,
     required: false
-}
-})
+  }
+});
 
 const collection = mongoose.model("Collection1", LoginSchema);
 

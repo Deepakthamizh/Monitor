@@ -1,47 +1,31 @@
-function isAuthenticated(req, res, next) {
-  // Enhanced logging for debugging
-  console.log("Auth Check - Session ID:", req.sessionID);
-  console.log("Auth Check - Session Data:", {
-    userId: req.session.userId,
-    premium: req.session.premium,
-    expires: req.session.cookie.expires
+const admin = require('firebase-admin');
+
+// Initialize Firebase Admin SDK
+const serviceAccount = require('../monitor---a-todo-app-firebase-adminsdk-fbsvc-16202d4c84.json');
+
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
   });
-  console.log("Auth Check - Cookies:", req.headers.cookie);
-  console.log("Auth Check - Passport User:", req.user);
+}
 
-  const userId = req.user?._id || req.session.userId;
+const isAuthenticated = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
 
-  if (!userId) {
-    console.error("Authentication failed - No user ID found");
-    if (req.headers.accept?.includes("application/json")) {
-      return res.status(401).json({ 
-        message: "Unauthorized",
-        details: {
-          sessionExists: !!req.session,
-          hasSessionUserId: !!req.session.userId,
-          hasPassportUser: !!req.user
-        }
-      });
-    }
-    return res.redirect("https://monitor---a-todo-app.web.app/login.html");
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "No token provided" });
   }
 
-  // Optional: Verify the user exists in DB
-  collection.findById(userId)
-    .then(user => {
-      if (!user) {
-        console.error("Authentication failed - User not found in DB");
-        return res.status(401).json({ message: "User account not found" });
-      }
-      
-      // Attach full user object to request for later use
-      req.authenticatedUser = user;
-      next();
-    })
-    .catch(err => {
-      console.error("Authentication DB error:", err);
-      res.status(500).json({ message: "Authentication server error" });
-    });
-}
+  const token = authHeader.split(" ")[1];
+
+  try {
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    req.user = decodedToken;
+    next();
+  } catch (error) {
+    console.error("Token verification failed:", error);
+    return res.status(403).json({ message: "Unauthorized" });
+  }
+};
 
 module.exports = isAuthenticated;

@@ -8,8 +8,6 @@ const MongoStore = require("connect-mongo");
 
 const session = require('express-session');
 const axios = require('axios');
-const passport = require('passport');
-require('./auth/passport-config.js'); // create this file in next step
 
 
 const {userModel, collection} =require('./model/user.data.js');
@@ -45,14 +43,7 @@ app.use(session({
   }
 }));
 
-app.use(passport.initialize());
-app.use(passport.session());
-
 app.use(express.static(path.join(__dirname, 'public'))); //project files are being served
-
-
-const authRoutes = require('./routes/authRoutes.js');
-app.use(authRoutes);
 
 
 const storage = multer.diskStorage({
@@ -71,8 +62,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.get("/check-session", (req, res) => {
   res.json({
     session: req.session,
-    cookies: req.headers.cookie,
-    user: req.user
+    cookies: req.headers.cookie
   });
 });
 
@@ -90,7 +80,7 @@ app.post('/add-task', isAuthenticated, upload.single('image'), async (req, res)=
 
     const taskName = req.body.newTask;
     const taskDetails = req.body.description;
-    const userId = req.user?._id || req.session.userId; //getting the userId from the stored cookie
+    const userId = req.session.userId; //getting the userId from the stored cookie
 
     const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
 
@@ -119,7 +109,7 @@ app.get('/get-tasks', isAuthenticated, async (req, res)=>{
     console.log("Session:", req.session);
     console.log("User:", req.user);
   try {
-    const userId = req.user?._id || req.session.userId;
+    const userId = req.session.userId;
     
     const tasks = await userModel.find({ userId });
 
@@ -132,7 +122,7 @@ app.get('/get-tasks', isAuthenticated, async (req, res)=>{
 app.delete('/delete-task/:id', isAuthenticated, async(req, res) => {
   try {
     const taskId = req.params.id;
-    const userId = req.user?._id || req.session.userId;
+    const userId = req.session.userId;
 
     const task = await userModel.findOne({_id: taskId, userId: userId});
     if (!task) {
@@ -159,7 +149,7 @@ app.put('/mark-complete/:id', isAuthenticated, async(req, res) => {
 app.put('/mark-dropped/:id', isAuthenticated, async(req, res) => {
   try {
     const taskId = req.params.id;
-    const userId = req.user?._id || req.session.userId;
+    const userId = req.session.userId;
 
     const user = await collection. findById(userId)
     
@@ -236,31 +226,6 @@ app.put('/mark-pending/:id', isAuthenticated, async (req, res) => {
     res.status(500).json({ error: "Failed to undrop task" });
   }
 });
-
-// Redirect user to Google
-app.get('/auth/google',
-  passport.authenticate('google', { scope: ['profile', 'email'] })
-);
-
-// Callback URL after login
-app.get('/auth/google/callback',
-  passport.authenticate('google', { failureRedirect: 'https://monitor---a-todo-app.web.app/login.html' }),
-  (req, res) => {
-    req.session.userId = req.user._id;  // Add this
-    req.session.premium = req.user.premium;
-    // Set cookies like your local login
-    res.cookie("userId", req.user._id.toString(), { 
-      httpOnly: true, 
-      sameSite: "none", 
-      secure: true
-    });
-    res.cookie("premium", user.premium, {
-      sameSite: "none",
-      secure: true
-    });
-    res.redirect('/home'); 
-  }
-);
 
 //redirecting to zoho login
 app.get('/auth/zoho', (req, res) => {
@@ -347,7 +312,7 @@ app.get('/oauth/callback', async (req, res) => {
 async function ensureZohoAccessToken(req, res, next) {
   try {
     if (!req.session.zohoAccessToken) {
-      const userId = req.user?._id || req.session.userId;
+      const userId = req.session.userId;
       const user = await collection.findById(userId);
 
       if (!user || !user.refreshToken) {
@@ -381,7 +346,7 @@ app.get('/fetch-zoho-tasks', ensureZohoAccessToken, async (req, res) => {
   const access_token = req.session.zohoAccessToken;
   const user = await collection.findById(req.session.userId);
   const zohoUserId = user.zohoUserId;
-  const userId = req.user?._id || req.session.userId;
+  const userId = req.session.userId;
 
   try {
     const response = await axios.get('https://www.zohoapis.in/crm/v2/Tasks', {
@@ -435,7 +400,7 @@ app.get('/fetch-zoho-tasks', ensureZohoAccessToken, async (req, res) => {
 
 app.post('/mark-complete', isAuthenticated, async (req,res) => {
   const {taskId} = req.body;
-  const userId = req.user?._id || req.session.userId;
+  const userId = req.session.userId;
 
   try{
     const user = await collection.findById(userId);
