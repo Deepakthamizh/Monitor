@@ -2,6 +2,7 @@ require('dotenv').config();
 
 const express = require('express');
 const app = express(); //creating an app instance using express framework
+app.use(express.json());
 const cors = require('cors');
 const cookieParser = require('cookie-parser'); 
 const MongoStore = require("connect-mongo");
@@ -10,7 +11,6 @@ const session = require('express-session');
 const axios = require('axios');
 
 
-const {userModel, collection} =require('./model/user.data.js');
 const isAuthenticated = require('./config/authMiddleware.js');
 const multer = require('multer');
 const path = require('path'); //importing path module
@@ -24,7 +24,7 @@ app.use(cors({
   credentials: true
 }));
 
-app.use(express.json());
+
 app.use(express.urlencoded({extended:false}));
 
 app.use(cookieParser());
@@ -183,11 +183,13 @@ app.post("/signup", async (req,res)=>{
       premium: false
     };
 
-    await new collection(data).save();
+    const savedUser = await new collection(data).save();
+    console.log("Saved to MongoDB:", savedUser);
+
     res.redirect('https://monitor---a-todo-app.web.app/login.html');
     
     } catch (err) {
-        console.error("Signup failed:", err); // ✅ See actual error in Render logs
+        console.error("Signup failed mongoDB error:", err.message); // ✅ See actual error in Render logs
         res.status(500).send("Internal Server Error");
       }
   });
