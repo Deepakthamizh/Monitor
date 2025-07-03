@@ -7,6 +7,8 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser'); 
 const MongoStore = require("connect-mongo");
 
+const {userModel, collection} =require('./model/user.data.js');
+
 const session = require('express-session');
 const axios = require('axios');
 
