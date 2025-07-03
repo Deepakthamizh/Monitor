@@ -14,9 +14,11 @@ const {userModel, collection} =require('./model/user.data.js');
 const isAuthenticated = require('./config/authMiddleware.js');
 const multer = require('multer');
 const path = require('path'); //importing path module
+const firebaseRoute = require("./firebaseRoute");
+
 
 //oauth login process
-
+app.use(firebaseRoute);
 app.use(cors({
   origin: 'https://monitor---a-todo-app.web.app',
   credentials: true

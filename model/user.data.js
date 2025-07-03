@@ -40,6 +40,7 @@ const userSchema = new Schema({
 const LoginSchema = new mongoose.Schema({
   firebaseUID: {
     type: String,
+    required: true,
     unique: true
   },
   name: {
