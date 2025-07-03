@@ -201,8 +201,12 @@ app.post("/login", async(req,res) => {
     req.session.userId = user._id.toString();
     req.session.premium = user.premium;
 
-    res.cookie("userId", user._id.toString(), { httpOnly: true, sameSite: "None", secure: true });
-    res.cookie("premium", user.premium);
+    res.cookie("userId", user._id.toString(), { httpOnly: true, sameSite: "none", secure: true });
+    res.cookie("premium", user.premium, {
+      sameSite: 'none',
+      secure: true,
+      httpOnly: true
+    });
 
     res.json({ success: true, name: user.name, premium: user.premium });
   } else {
