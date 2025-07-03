@@ -8,6 +8,7 @@ const cookieParser = require('cookie-parser');
 const MongoStore = require("connect-mongo");
 
 const {userModel, collection} =require('./model/user.data.js');
+const admin = require("firebase-admin");
 
 const session = require('express-session');
 const axios = require('axios');
@@ -25,6 +26,13 @@ app.use(cors({
   origin: 'https://monitor---a-todo-app.web.app',
   credentials: true
 }));
+
+if (!admin.apps.length) {
+  const serviceAccount = require("./path/to/your/firebase-adminsdk.json");
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+  });
+}
 
 
 app.use(express.urlencoded({extended:false}));
@@ -196,35 +204,23 @@ app.post("/signup", async (req,res)=>{
       }
   });
 
-app.post("/login", async (req, res) => {
-  const { name, password } = req.body;
+app.post('/session-login', async (req, res) => {
+  const idToken = req.body.idToken;
 
-  const user = await collection.findOne({ name });
+  try {
+    // Verify the Firebase ID token
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    const uid = decodedToken.uid;
 
-  if (!user) {
-    return res.status(401).json({ success: false, message: "User not found" });
+    // Create session (or set cookie)
+    req.session.userId = uid;
+    req.session.premium = true; // or fetch from DB if needed
+
+    res.status(200).json({ message: "Session created" });
+  } catch (error) {
+    console.error("Token verification failed:", error);
+    res.status(401).json({ error: "Unauthorized" });
   }
-
-  if (user.password !== password) {
-    return res.status(401).json({ success: false, message: "Incorrect password" });
-  }
-
-  // ✅ Set session data
-  req.session.userId = user._id;
-  req.session.premium = user.premium;
-
-  console.log("Saving session:", req.session);
-
-  // ✅ Explicitly save the session before responding
-  req.session.save((err) => {
-    if (err) {
-      console.error("Session save error:", err);
-      return res.status(500).json({ error: "Session save failed" });
-    }
-
-    // ✅ Send response only after session is saved
-    res.json({ success: true, name: user.name, premium: user.premium });
-  });
 });
 
 app.put('/mark-pending/:id', isAuthenticated, async (req, res) => {
