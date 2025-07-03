@@ -208,6 +208,8 @@ app.post("/login", async (req, res) => {
   req.session.userId = user._id;
   req.session.premium = user.premium;
 
+  console.log("Saving session:", req.session);
+
   // ✅ Explicitly save the session before responding
   req.session.save((err) => {
     if (err) {
