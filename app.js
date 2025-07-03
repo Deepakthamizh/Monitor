@@ -37,6 +37,7 @@ app.use(session({
     ttl: 24 * 60 * 60 // = 1 day
   }),
   cookie: {
+    domain: "monitor-backend-shxt.onrender.com",
     httpOnly: true,
     secure: true,           // Required for cross-site cookies (HTTPS)
     sameSite: 'none',       // Required for cross-site cookies
@@ -68,8 +69,11 @@ const upload = multer({ storage: storage });
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.get("/check-session", (req, res) => {
-  console.log("Session:", req.session);
-  res.send("Session check done.");
+  res.json({
+    session: req.session,
+    cookies: req.headers.cookie,
+    user: req.user
+  });
 });
 
 
@@ -214,7 +218,7 @@ app.post("/login", async (req, res) => {
   req.session.save((err) => {
     if (err) {
       console.error("Session save error:", err);
-      return res.status(500).json({ success: false, message: "Session error" });
+      return res.status(500).json({ error: "Session save failed" });
     }
 
     // ✅ Send response only after session is saved
@@ -242,10 +246,19 @@ app.get('/auth/google',
 app.get('/auth/google/callback',
   passport.authenticate('google', { failureRedirect: 'https://monitor---a-todo-app.web.app/login.html' }),
   (req, res) => {
+    req.session.userId = req.user._id;  // Add this
+    req.session.premium = req.user.premium;
     // Set cookies like your local login
-    res.cookie("userId", req.user._id.toString(), { httpOnly: true, sameSite: "none", secure: true });
-    res.cookie("premium", req.user.premium);
-    res.redirect('https://monitor---a-todo-app.web.app/index.html'); 
+    res.cookie("userId", req.user._id.toString(), { 
+      httpOnly: true, 
+      sameSite: "none", 
+      secure: true
+    });
+    res.cookie("premium", user.premium, {
+      sameSite: "none",
+      secure: true
+    });
+    res.redirect('/home'); 
   }
 );
 
@@ -315,12 +328,13 @@ app.get('/oauth/callback', async (req, res) => {
       }
     });
 
-    res.cookie("userId", user._id.toString(), { httpOnly: true, sameSite: "none" });
+    res.cookie("userId", user._id.toString(), { httpOnly: true, sameSite: "none", secure: true });
+    res.redirect('/home');
+
     res.cookie("premium", user.premium);
 
     res.cookie("username", user.name);
 
-    res.redirect('/home');
   } catch (err) {
     console.error('OAuth error:', err.response?.data || err.message);
     res.redirect('/login');
