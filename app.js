@@ -175,18 +175,21 @@ app.get("/home", (req, res) => {
 });
 
 app.post("/signup", async (req,res)=>{
+  try {
+    const data={
+      name:req.body.name,
+      firebaseUID: req.body.firebaseUID,
+      premium: false
+    };
 
-  const data={
-    name:req.body.name,
-    firebaseUID: req.body.firebaseUID,
-    premium: false
-  }
-
-  await new collection(data).save();
-
-  res.redirect('https://monitor---a-todo-app.web.app/login.html');
-  
-});
+    await new collection(data).save();
+    res.redirect('https://monitor---a-todo-app.web.app/login.html');
+    
+    } catch (err) {
+        console.error("Signup failed:", err); // ✅ See actual error in Render logs
+        res.status(500).send("Internal Server Error");
+      }
+  });
 
 app.post("/login", async (req, res) => {
   const { name, password } = req.body;
