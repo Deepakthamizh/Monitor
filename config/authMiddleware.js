@@ -1,7 +1,7 @@
 const admin = require('firebase-admin');
 
 // Initialize Firebase Admin SDK
-const serviceAccount = require('../monitor---a-todo-app-firebase-adminsdk-fbsvc-16202d4c84.json');
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);;
 
 if (!admin.apps.length) {
   admin.initializeApp({
