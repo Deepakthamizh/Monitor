@@ -117,19 +117,29 @@ app.post('/add-task', isAuthenticated, upload.single('image'), async (req, res)=
 });
 
 
-app.get('/get-tasks', isAuthenticated, async (req, res)=>{
-    console.log("Session:", req.session);
-    console.log("User:", req.user);
-  try {
-    const userId = req.session.userId;
-    
-    const tasks = await userModel.find({ userId });
+const admin = require('firebase-admin');
 
+app.get('/get-tasks', async (req, res) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).send('Unauthorized');
+  }
+
+  const idToken = authHeader.split('Bearer ')[1];
+
+  try {
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    const userId = decodedToken.uid;
+
+    const tasks = await userModel.find({ userId }); // Match with your schema
     res.status(200).json(tasks);
   } catch (error) {
-    res.status(500).json({error: "Failed to fetch tasks"});
+    console.error("Firebase token verification failed:", error);
+    res.status(401).json({ error: "Invalid or expired token" });
   }
 });
+
 
 app.delete('/delete-task/:id', isAuthenticated, async(req, res) => {
   try {
@@ -219,7 +229,7 @@ app.post('/session-login', async (req, res) => {
     req.session.userId = uid;
     req.session.premium = true; // or fetch from DB if needed
 
-    req.session.save((err) => {
+      req.session.save((err) => {
         if (err) return res.status(500).json({ error: "Session save failed" });
         res.status(200).json({ message: "Session created" });
       });
