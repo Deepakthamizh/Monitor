@@ -78,7 +78,9 @@ app.get("/check-session", (req, res) => {
 
 
 app.get('/', (req, res) => {
-  res.send("API Server is running");
+  res.send(`<h2>API Server is running</h2>
+    <p>If you see the image below, your backend and Firebase frontend are both accessible:</p>
+    <img src="https://monitor---a-todo-app.web.app/referenceImages/Zoho-logo.png" alt="Firebase Frontend Image" width="200">`);
 });
 
 app.get("/login", (req, res) => {
