@@ -116,9 +116,6 @@ app.post('/add-task', isAuthenticated, upload.single('image'), async (req, res)=
   }
 });
 
-
-const admin = require('firebase-admin');
-
 app.get('/get-tasks', async (req, res) => {
   const authHeader = req.headers.authorization;
 
