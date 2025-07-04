@@ -212,17 +212,19 @@ app.post('/session-login', async (req, res) => {
     const decodedToken = await admin.auth().verifyIdToken(idToken);
     const uid = decodedToken.uid;
 
-    if (req.session.userId === uid) {
-      return res.status(200).json({ message: "Session already exists" });
-    }
+    req.session.regenerate((err) => {
+      if (err) return res.status(500).json({ error: "Session regeneration failed" }); 
 
     // Create session (or set cookie)
     req.session.userId = uid;
     req.session.premium = true; // or fetch from DB if needed
 
-    res.status(200).json({ message: "Session created" });
+    req.session.save((err) => {
+        if (err) return res.status(500).json({ error: "Session save failed" });
+        res.status(200).json({ message: "Session created" });
+      });
+    });
   } catch (error) {
-    console.error("Token verification failed:", error);
     res.status(401).json({ error: "Unauthorized" });
   }
 });
