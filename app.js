@@ -212,6 +212,10 @@ app.post('/session-login', async (req, res) => {
     const decodedToken = await admin.auth().verifyIdToken(idToken);
     const uid = decodedToken.uid;
 
+    if (req.session.userId === uid) {
+      return res.status(200).json({ message: "Session already exists" });
+    }
+
     // Create session (or set cookie)
     req.session.userId = uid;
     req.session.premium = true; // or fetch from DB if needed
