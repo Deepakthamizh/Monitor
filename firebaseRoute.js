@@ -25,4 +25,4 @@ const { collection } = require("./model/user.data");
 //   }
 // });
 
-// module.exports = router;
+module.exports = router;
