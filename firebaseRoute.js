@@ -1,6 +1,6 @@
-// const express = require("express");
-// const router = express.Router();
-// const { collection } = require("./model/user.data");
+const express = require("express");
+const router = express.Router();
+const { collection } = require("./model/user.data");
 
 // router.post("/firebase-login", async (req, res) => {
 //   const { firebaseUID } = req.body;
