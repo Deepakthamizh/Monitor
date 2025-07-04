@@ -44,10 +44,8 @@ app.use(session({
   saveUninitialized: false,
   store: MongoStore.create({
     mongoUrl: 'mongodb+srv://Monitor:mongodb1018@cluster0.vh39a90.mongodb.net/Monitor',
-    ttl: 24 * 60 * 60 // = 1 day
   }),
   cookie: {
-    domain: "monitor-backend-shxt.onrender.com",
     httpOnly: true,
     secure: true,           // Required for cross-site cookies (HTTPS)
     sameSite: 'none',       // Required for cross-site cookies
