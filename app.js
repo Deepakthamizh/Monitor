@@ -79,7 +79,7 @@ app.get("/check-session", (req, res) => {
 
 app.get('/', (req, res) => {
   res.send(`<h2>API Server is running</h2>
-    <p>If you see the image below, your backend and Firebase frontend are both accessible:</p>
+    <p>Hi!!! The server is running and I'm from firebase:</p>
     <img src="https://monitor---a-todo-app.web.app/referenceImages/Zoho-logo.png" alt="Firebase Frontend Image" width="200">`);
 });
 
@@ -299,14 +299,6 @@ app.get('/oauth/callback', async (req, res) => {
         grant_type: 'refresh_token',
       }
     });
-
-    res.cookie("userId", user._id.toString(), { httpOnly: true, sameSite: "none", secure: true });
-    res.redirect('/home');
-
-    res.cookie("premium", user.premium);
-
-    res.cookie("username", user.name);
-
   } catch (err) {
     console.error('OAuth error:', err.response?.data || err.message);
     res.redirect('/login');
