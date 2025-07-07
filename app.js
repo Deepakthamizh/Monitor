@@ -82,34 +82,34 @@ app.get("/login", (req, res) => {
    res.sendFile(path.join(__dirname, 'login.html'));
 });
  
-app.post('/add-task', isAuthenticated, upload.single('image'), async (req, res)=>{
-  try {
+// app.post('/add-task', isAuthenticated, upload.single('image'), async (req, res)=>{
+//   try {
 
-    const taskName = req.body.newTask;
-    const taskDetails = req.body.description;
-    const userId = req.user.uid;
+//     const taskName = req.body.newTask;
+//     const taskDetails = req.body.description;
+//     const userId = req.user.uid;
 
-    const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
+//     const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
 
-    const newTask = new userModel({
-      newTask: taskName,
-      description: taskDetails, 
-      userId: userId,
-      status: "pending", 
-      imagePath: imagePath
-    });
+//     const newTask = new userModel({
+//       newTask: taskName,
+//       description: taskDetails, 
+//       userId: userId,
+//       status: "pending", 
+//       imagePath: imagePath
+//     });
     
-    const saved = await newTask.save();
+//     const saved = await newTask.save();
 
-    res.status(201).json({
-      message: "Task saved to DB", 
-      taskId: saved._id,
-      imagePath: saved.imagePath
-    });
-  }catch (error){
-    res.status(500).json({error: "Failed to save the task"});
-  }
-});
+//     res.status(201).json({
+//       message: "Task saved to DB", 
+//       taskId: saved._id,
+//       imagePath: saved.imagePath
+//     });
+//   }catch (error){
+//     res.status(500).json({error: "Failed to save the task"});
+//   }
+// });
 
 app.get("/get-tasks", async (req, res) => {
   if (!req.session.userId) {
@@ -129,50 +129,50 @@ app.get("/get-tasks", async (req, res) => {
 });
 
 
-app.delete('/delete-task/:id', isAuthenticated, async(req, res) => {
-  try {
-    const taskId = req.params.id;
-    const userId = req.session.userId;
+// app.delete('/delete-task/:id', isAuthenticated, async(req, res) => {
+//   try {
+//     const taskId = req.params.id;
+//     const userId = req.session.userId;
 
-    const task = await userModel.findOne({_id: taskId, userId: userId});
-    if (!task) {
-      return res.status(403).json({ message: "Invalid Attempt" });
-    }
+//     const task = await userModel.findOne({_id: taskId, userId: userId});
+//     if (!task) {
+//       return res.status(403).json({ message: "Invalid Attempt" });
+//     }
 
-    await userModel.findByIdAndDelete(taskId);
-    res.status(200).json({message: "Task deleted from DB"});
-  }catch (error) {
-    res.status(500).json({error: "Failed to delete task"});
-  }
-});
+//     await userModel.findByIdAndDelete(taskId);
+//     res.status(200).json({message: "Task deleted from DB"});
+//   }catch (error) {
+//     res.status(500).json({error: "Failed to delete task"});
+//   }
+// });
 
-app.put('/mark-complete/:id', isAuthenticated, async(req, res) => {
-  try {
-    const taskId = req.params.id;
-    await userModel.findByIdAndUpdate(taskId, {status: "Completed"});
-    res.status(200).json({message: "Task marked as completed"});
-  }catch (error) {
-    res.status(500).json({error: "Failed to mark task as completed"});
-  }
-});
+// app.put('/mark-complete/:id', isAuthenticated, async(req, res) => {
+//   try {
+//     const taskId = req.params.id;
+//     await userModel.findByIdAndUpdate(taskId, {status: "Completed"});
+//     res.status(200).json({message: "Task marked as completed"});
+//   }catch (error) {
+//     res.status(500).json({error: "Failed to mark task as completed"});
+//   }
+// });
 
-app.put('/mark-dropped/:id', isAuthenticated, async(req, res) => {
-  try {
-    const taskId = req.params.id;
-    const userId = req.session.userId;
+// app.put('/mark-dropped/:id', isAuthenticated, async(req, res) => {
+//   try {
+//     const taskId = req.params.id;
+//     const userId = req.session.userId;
 
-    const user = await collection. findById(userId)
+//     const user = await collection. findById(userId)
     
-    if (!user.premium){
-      return res.status(403).json ({message: "Invalid access, not a premium user"})
-    }
+//     if (!user.premium){
+//       return res.status(403).json ({message: "Invalid access, not a premium user"})
+//     }
 
-    await userModel.findByIdAndUpdate(taskId, {status: "dropped"});
-    res.status(200).json({message: "Task has been dropped :("});
-  }catch (error) {
-    res.status(500).json({error: "Failed to drop task"});
-  }
-});
+//     await userModel.findByIdAndUpdate(taskId, {status: "dropped"});
+//     res.status(200).json({message: "Task has been dropped :("});
+//   }catch (error) {
+//     res.status(500).json({error: "Failed to drop task"});
+//   }
+// });
 
 app.get("/signup", (req, res) => {
  res.sendFile(path.join(__dirname, 'signup.html'));
@@ -227,16 +227,16 @@ app.post('/session-login', async (req, res) => {
   }
 });
 
-app.put('/mark-pending/:id', isAuthenticated, async (req, res) => {
-  try {
-    const taskId = req.params.id;
+// app.put('/mark-pending/:id', isAuthenticated, async (req, res) => {
+//   try {
+//     const taskId = req.params.id;
 
-    await userModel.findByIdAndUpdate(taskId, { status: "pending" });
-    res.status(200).json({ message: "Task marked as pending again" });
-  } catch (error) {
-    res.status(500).json({ error: "Failed to undrop task" });
-  }
-});
+//     await userModel.findByIdAndUpdate(taskId, { status: "pending" });
+//     res.status(200).json({ message: "Task marked as pending again" });
+//   } catch (error) {
+//     res.status(500).json({ error: "Failed to undrop task" });
+//   }
+// });
 
 //redirecting to zoho login
 app.get('/auth/zoho', (req, res) => {
@@ -401,50 +401,50 @@ app.get('/fetch-zoho-tasks', ensureZohoAccessToken, async (req, res) => {
   }
 });
 
-app.post('/mark-complete', isAuthenticated, async (req,res) => {
-  const {taskId} = req.body;
-  const userId = req.session.userId;
+// app.post('/mark-complete', isAuthenticated, async (req,res) => {
+//   const {taskId} = req.body;
+//   const userId = req.session.userId;
 
-  try{
-    const user = await collection.findById(userId);
-    if(!user || !user.refreshToken) {
-      return res.status(401).json({success: false, message: 'Unauthorized'});
-    }
+//   try{
+//     const user = await collection.findById(userId);
+//     if(!user || !user.refreshToken) {
+//       return res.status(401).json({success: false, message: 'Unauthorized'});
+//     }
 
-    const tokenResponse = await axios.post ('https://accounts.zoho.in/oauth/v2/token', null, {
-      params: {
-        refresh_token: user.refreshToken, 
-        client_id: process.env.ZOHO_CLIENT_ID,
-        client_secret: process.env.ZOHO_CLIENT_SECRET,
-        grant_type: 'refresh_token'
-      }
-    });
+//     const tokenResponse = await axios.post ('https://accounts.zoho.in/oauth/v2/token', null, {
+//       params: {
+//         refresh_token: user.refreshToken, 
+//         client_id: process.env.ZOHO_CLIENT_ID,
+//         client_secret: process.env.ZOHO_CLIENT_SECRET,
+//         grant_type: 'refresh_token'
+//       }
+//     });
 
-    const accessToken = tokenResponse.data.access_token;
+//     const accessToken = tokenResponse.data.access_token;
 
-    const updateResponse = await axios.patch (
-      'https://www.zohoapis.in/crm/v2/Tasks',
-      {
-        data: [{id: taskId, Status: "Completed"}]
-      },
-      {
-        headers: {
-          Authorization: `Zoho-oauthtoken ${accessToken}`
-        }
-      }
-    );
+//     const updateResponse = await axios.patch (
+//       'https://www.zohoapis.in/crm/v2/Tasks',
+//       {
+//         data: [{id: taskId, Status: "Completed"}]
+//       },
+//       {
+//         headers: {
+//           Authorization: `Zoho-oauthtoken ${accessToken}`
+//         }
+//       }
+//     );
 
-    await userModel.findOneAndUpdate(
-      { zohoId: taskId, userId: userId },
-      { $set: {status: "Completed"}}
-    );
+//     await userModel.findOneAndUpdate(
+//       { zohoId: taskId, userId: userId },
+//       { $set: {status: "Completed"}}
+//     );
 
-    res.json({ success: true, data: updateResponse.data});
-  } catch (err) {
-    console.error("Error updating task in Zoho", err.response?.data || err.message);
-    res.status(500).json({success: false, message: 'Zoho failed to update'});
-  }
-});
+//     res.json({ success: true, data: updateResponse.data});
+//   } catch (err) {
+//     console.error("Error updating task in Zoho", err.response?.data || err.message);
+//     res.status(500).json({success: false, message: 'Zoho failed to update'});
+//   }
+// });
 
 
 app.post('/zoho-webhook', express.json(), async (req, res) => {
