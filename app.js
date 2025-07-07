@@ -22,8 +22,10 @@ const firebaseRoute = require("./firebaseRoute");
 //oauth login processadd
 app.use(firebaseRoute);
 app.use(cors({
-  origin: 'https://monitor---a-todo-app.web.app',
-  credentials: true
+  origin: 'https://monitor---a-todo-app.web.app',  
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization'], 
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], 
 }));
 
 if (!admin.apps.length) {
