@@ -21,11 +21,12 @@ const firebaseRoute = require("./firebaseRoute");
 
 //oauth login processadd
 app.use(firebaseRoute);
+
 app.use(cors({
   origin: 'https://monitor---a-todo-app.web.app',  
   credentials: true,
-  allowedHeaders: ['Content-Type', 'Authorization'], 
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], 
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],  
 }));
 
 if (!admin.apps.length) {
@@ -75,6 +76,10 @@ app.get("/check-session", (req, res) => {
     session: req.session,
     cookies: req.headers.cookie
   });
+});
+
+app.get("/test", (req, res) => {
+  res.json({ message: "CORS working!", headers: req.headers });
 });
 
 
