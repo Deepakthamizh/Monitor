@@ -2,7 +2,6 @@ require('dotenv').config();
 
 const express = require('express');
 const app = express(); //creating an app instance using express framework
-app.use(express.json());
 const cors = require('cors');
 const cookieParser = require('cookie-parser'); 
 const MongoStore = require("connect-mongo");
@@ -16,10 +15,6 @@ const axios = require('axios');
 const multer = require('multer');
 const path = require('path'); //importing path module
 
-const firebaseRoute = require("./firebaseRoute");
-app.use(firebaseRoute);
-
-
 app.use(cors({
   origin: 'https://monitor---a-todo-app.web.app',  
   credentials: true,
@@ -27,6 +22,11 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],  
 }));
 
+const firebaseRoute = require("./firebaseRoute");
+app.use(firebaseRoute);
+
+
+app.use(express.json());
 app.use(express.urlencoded({extended:false}));
 
 app.use(cookieParser());
@@ -38,9 +38,8 @@ app.use(session({
     mongoUrl: 'mongodb+srv://Monitor:mongodb1018@cluster0.vh39a90.mongodb.net/Monitor',
   }),
   cookie: {
-    httpOnly: true,
+    sameSite: 'none', 
     secure: true,           // Required for cross-site cookies (HTTPS)
-    sameSite: 'none',       // Required for cross-site cookies
     maxAge: 24 * 60 * 60 * 1000 // 1 day in ms
   }
 }));
