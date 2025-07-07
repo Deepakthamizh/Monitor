@@ -4,16 +4,18 @@ const express = require('express');
 const app = express(); //creating an app instance using express framework
 const cors = require('cors');
 const cookieParser = require('cookie-parser'); 
+const session = require('express-session');
 const MongoStore = require("connect-mongo");
 
 const {userModel, collection} =require('./model/user.data.js');
-
-const session = require('express-session');
 const axios = require('axios');
 
 // const isAuthenticated = require('./config/authMiddleware.js');
 const multer = require('multer');
 const path = require('path'); //importing path module
+
+app.use(express.json());
+app.use(express.urlencoded({extended:false}));
 
 app.use(cors({
   origin: 'https://monitor---a-todo-app.web.app',  
@@ -21,9 +23,6 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],  
 }));
-
-app.use(express.json());
-app.use(express.urlencoded({extended:false}));
 
 app.use(cookieParser());
 app.use(session({
