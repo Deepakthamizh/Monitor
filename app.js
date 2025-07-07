@@ -13,7 +13,7 @@ const admin = require("firebase-admin");
 const session = require('express-session');
 const axios = require('axios');
 
-const isAuthenticated = require('./config/authMiddleware.js');
+// const isAuthenticated = require('./config/authMiddleware.js');
 const multer = require('multer');
 const path = require('path'); //importing path module
 const firebaseRoute = require("./firebaseRoute");
@@ -26,13 +26,6 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],  
 }));
-
-if (!admin.apps.length) {
-  const serviceAccount = require("./path/to/your/firebase-adminsdk.json");
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-  });
-}
 
 app.use(express.urlencoded({extended:false}));
 
