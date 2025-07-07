@@ -22,20 +22,17 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],  
 }));
 
-const firebaseRoute = require("./firebaseRoute");
-app.use(firebaseRoute);
-
-
 app.use(express.json());
 app.use(express.urlencoded({extended:false}));
 
 app.use(cookieParser());
 app.use(session({
-  secret: 'monitorapp@1234', // keep this secret safe
+  secret: process.env.SESSION_SECRET, // keep this secret safe
   resave: false,
   saveUninitialized: false,
   store: MongoStore.create({
     mongoUrl: 'mongodb+srv://Monitor:mongodb1018@cluster0.vh39a90.mongodb.net/Monitor',
+    collectionName: "sessions",
   }),
   cookie: {
     sameSite: 'none', 
@@ -43,6 +40,9 @@ app.use(session({
     maxAge: 24 * 60 * 60 * 1000 // 1 day in ms
   }
 }));
+
+const firebaseRoute = require("./firebaseRoute");
+app.use(firebaseRoute);
 
 app.use(express.static(path.join(__dirname, 'public'))); //project files are being served
 

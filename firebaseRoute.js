@@ -37,16 +37,23 @@ router.post("/session-login", async (req, res) => {
 
     // If user doesn't exist, create with firebaseUID and name
     if (!user) {
+      try {
       user = await collection.create({
         firebaseUID,
         name: name || "",  // fallback if name is undefined
         premium: false,
       });
+    } catch (err) {
+      console.error("MongoDB user creation failed:", err);
+      return res.status(500).json({ error: "User creation failed" });
     }
+  }
 
     // Set session
     req.session.userId = user._id;
     req.session.premium = user.premium;
+
+    console.log("Session created:", req.session);
 
     req.session.save((err) => {
       if (err) return res.status(500).json({ error: "Session save failed" });
