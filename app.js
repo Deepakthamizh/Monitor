@@ -17,10 +17,8 @@ const isAuthenticated = require('./config/authMiddleware.js');
 const multer = require('multer');
 const path = require('path'); //importing path module
 const firebaseRoute = require("./firebaseRoute");
-
-
-//oauth login processadd
 app.use(firebaseRoute);
+
 
 app.use(cors({
   origin: 'https://monitor---a-todo-app.web.app',  
@@ -35,7 +33,6 @@ if (!admin.apps.length) {
     credential: admin.credential.cert(serviceAccount)
   });
 }
-
 
 app.use(express.urlencoded({extended:false}));
 
@@ -122,27 +119,20 @@ app.post('/add-task', isAuthenticated, upload.single('image'), async (req, res)=
   }
 });
 
-app.get('/get-tasks', async (req, res) => {
-  const authHeader = req.headers.authorization;
-
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).send('Unauthorized');
+app.get("/get-tasks", async (req, res) => {
+  if (!req.session.userId) {
+    return res.status(401).json("Unauthorized");
   }
 
-  const idToken = authHeader.split('Bearer ')[1];
-
   try {
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
-    const userId = decodedToken.uid;
-
-    const tasks = await userModel.find({ userId }); // Match with your schema
-    const user = await collection.findOne({ firebaseUID: userId });
+    const user = await collection.findById(req.session.userId);
+    const tasks = await userModel.find({ userId: user._id });
     const isPremium = user?.premium || false;
 
     res.status(200).json({ tasks, isPremium });
   } catch (error) {
-    console.error("Firebase token verification failed:", error);
-    res.status(401).json({ error: "Invalid or expired token" });
+    console.error("Error fetching tasks:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 

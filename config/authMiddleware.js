@@ -1,38 +1,19 @@
-const admin = require('firebase-admin');
+// // authMiddleware.js
+// const admin = require("firebase-admin");
 
-// Initialize Firebase Admin SDK
-const serviceAccount = JSON.parse(
-  Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_BASE64, 'base64').toString('utf-8')
-);
+// const authenticate = async (req, res, next) => {
+//   const authHeader = req.headers.authorization || "";
+//   const token = authHeader.split("Bearer ")[1];
 
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-  });
-}
+//   if (!token) return res.status(401).send("Unauthorized");
 
-const isAuthenticated = async (req, res, next) => {
-  // 1. Session-based authentication (for web app)
-  if (req.session && req.session.userId) {
-    return next();
-  }
+//   try {
+//     const decoded = await admin.auth().verifyIdToken(token);
+//     req.user = decoded;
+//     next();
+//   } catch (err) {
+//     return res.status(401).send("Unauthorized");
+//   }
+// };
 
-  // 2. Bearer token authentication (for API clients)
-  const authHeader = req.headers.authorization;
-  if (authHeader && authHeader.startsWith("Bearer ")) {
-    const token = authHeader.split(" ")[1];
-    try {
-      const decodedToken = await admin.auth().verifyIdToken(token);
-      req.user = decodedToken;
-      return next();
-    } catch (error) {
-      console.error("Token verification failed:", error);
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-  }
-
-  // If neither session nor token is present
-  return res.status(401).json({ message: "No token or session provided" });
-};
-
-module.exports = isAuthenticated;
+// module.exports = authenticate;
