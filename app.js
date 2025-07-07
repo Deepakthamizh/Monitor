@@ -27,7 +27,7 @@ app.use(express.urlencoded({extended:false}));
 
 app.use(cookieParser());
 app.use(session({
-  secret: process.env.SESSION_SECRET, // keep this secret safe
+  secret: "superStrongSecretKey123!@#", // keep this secret safe
   resave: false,
   saveUninitialized: false,
   store: MongoStore.create({
