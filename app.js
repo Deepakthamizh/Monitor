@@ -12,8 +12,6 @@ const admin = require("firebase-admin");
 
 const session = require('express-session');
 const axios = require('axios');
-const flatpickr = require("flatpickr");
-
 
 const isAuthenticated = require('./config/authMiddleware.js');
 const multer = require('multer');
@@ -94,7 +92,7 @@ app.post('/add-task', isAuthenticated, upload.single('image'), async (req, res)=
     const taskName = req.body.newTask;
     const taskDetails = req.body.description;
     const userId = req.user.uid;
-    
+
     const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
 
     const newTask = new userModel({
