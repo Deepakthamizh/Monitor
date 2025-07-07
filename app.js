@@ -15,6 +15,7 @@ const axios = require('axios');
 // const isAuthenticated = require('./config/authMiddleware.js');
 const multer = require('multer');
 const path = require('path'); //importing path module
+
 const firebaseRoute = require("./firebaseRoute");
 app.use(firebaseRoute);
 
@@ -201,31 +202,6 @@ app.post("/signup", async (req,res)=>{
         res.status(500).json({ error: "Internal Server Error" });
       }
   });
-
-app.post('/session-login', async (req, res) => {
-  const idToken = req.body.idToken;
-
-  try {
-    // Verify the Firebase ID token
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
-    const uid = decodedToken.uid;
-
-    req.session.regenerate((err) => {
-      if (err) return res.status(500).json({ error: "Session regeneration failed" }); 
-
-    // Create session (or set cookie)
-    req.session.userId = uid;
-    req.session.premium = true; // or fetch from DB if needed
-
-      req.session.save((err) => {
-        if (err) return res.status(500).json({ error: "Session save failed" });
-        res.status(200).json({ message: "Session created" });
-      });
-    });
-  } catch (error) {
-    res.status(401).json({ error: "Unauthorized" });
-  }
-});
 
 // app.put('/mark-pending/:id', isAuthenticated, async (req, res) => {
 //   try {
