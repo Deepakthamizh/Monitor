@@ -27,7 +27,7 @@ const isAuthenticated = async (req, res, next) => {
       return next();
     } catch (error) {
       console.error("Token verification failed:", error);
-      return res.status(403).json({ message: "Unauthorized" });
+      return res.status(401).json({ message: "Unauthorized" });
     }
   }
 
