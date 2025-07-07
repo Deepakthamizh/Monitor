@@ -132,7 +132,7 @@ app.get('/get-tasks', async (req, res) => {
     const user = await collection.findOne({ firebaseUID: userId });
     const isPremium = user?.premium || false;
 
-    res.status(200).json(tasks, isPremium);
+    res.status(200).json({ tasks, isPremium });
   } catch (error) {
     console.error("Firebase token verification failed:", error);
     res.status(401).json({ error: "Invalid or expired token" });
